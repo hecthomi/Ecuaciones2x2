@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecuaciones 2×2 — Sistemas de Ecuaciones Lineales</title>
+<meta name="description" content="App educativa offline: teoría (guía MEN grado 9), resolutor paso a paso por 4 métodos, 60 ejercicios con contexto rural y test de 30 preguntas. Prof. Héctor Hoyos.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%93%90%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f5f7fa; --panel:#ffffff; --panel2:#fafbfc;
+  --ink:#26303e; --ink2:#5b6675; --muted:#8a94a3;
+  --line:#e6eaf0; --line2:#eef1f6;
+  --accent:#4c7bd9; --accent-soft:#eef3fc; --accent-ink:#3a63b5;
+  --ok:#3f9d78; --ok-soft:#eef7f2; --warn:#c98a3c; --warn-soft:#fbf4ea; --bad:#cf6b6b; --bad-soft:#fbeded;
+  --eq-bg:#eef4fd; --eq-bd:#d8e5f8; --eq-ink:#26303e; --eq-accent:#3a63b5;
+  --lf:#3f9d78; --lm:#c98a3c; --ld:#cf6b6b;
+  --shadow:0 1px 2px rgba(38,48,62,.04),0 6px 20px rgba(38,48,62,.06);
+  --shadow-sm:0 1px 3px rgba(38,48,62,.06);
+  --radius:14px;
+  --eqfont:'Cambria Math',Cambria,'STIX Two Math','Times New Roman',Georgia,serif;
+  --ui:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#0f151d; --panel:#18202b; --panel2:#141b24;
+  --ink:#e5eaf1; --ink2:#a9b4c2; --muted:#7c8797;
+  --line:#26303d; --line2:#212b37;
+  --accent:#6d97e6; --accent-soft:#1a2637; --accent-ink:#a9c4f5;
+  --ok:#5bb894; --ok-soft:#16261f; --warn:#d9a45f; --warn-soft:#2a2113; --bad:#e08a8a; --bad-soft:#2a1818;
+  --eq-bg:#16202e; --eq-bd:#26374f; --eq-ink:#e5eaf1; --eq-accent:#a9c4f5;
+  --lf:#5bb894; --lm:#d9a45f; --ld:#e08a8a;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:var(--ui);background:var(--bg);color:var(--ink);font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased;transition:background .35s,color .35s}
+#app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+#appmain{display:flex;flex-direction:row;flex:1;min-height:0;overflow:hidden}
+/* ---------- Sidebar / left menu ---------- */
+aside#sidebar{width:222px;flex-shrink:0;display:flex;flex-direction:column;gap:10px;padding:16px 12px;background:var(--panel);border-right:1px solid var(--line);height:100%;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:11px;flex-shrink:0;padding:2px 4px 10px;border-bottom:1px solid var(--line2)}
+.brand .mk{width:38px;height:38px;border-radius:11px;background:var(--accent-soft);border:1px solid var(--eq-bd);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0}
+.brand h1{font-size:.98rem;margin:0;font-weight:700;letter-spacing:-.2px;line-height:1.25}
+.brand p{margin:0;font-size:.7rem;color:var(--muted);font-weight:500;line-height:1.3}
+nav{display:flex;flex-direction:column;gap:3px;flex:1}
+nav button{display:flex;align-items:center;gap:10px;padding:10px 12px;border:none;border-radius:9px;background:transparent;font:inherit;font-size:.9rem;font-weight:600;color:var(--ink2);cursor:pointer;white-space:nowrap;transition:background .18s,color .18s;width:100%;text-align:left}
+nav button:hover{background:var(--line2);color:var(--ink)}
+nav button.active{background:var(--accent-soft);color:var(--accent-ink)}
+nav button .ic{font-size:1.05rem;opacity:.9;width:20px;text-align:center;flex-shrink:0}
+.hbtns{display:flex;align-items:center;gap:8px;flex-shrink:0;padding-top:10px;border-top:1px solid var(--line2)}
+.iconbtn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink2);cursor:pointer;font-size:1.05rem;display:flex;align-items:center;justify-content:center;transition:all .18s;flex:1}
+.iconbtn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+/* ---------- Main ---------- */
+main{flex:1;overflow:hidden;position:relative}
+.pane{display:none;position:absolute;inset:0;overflow-y:auto;padding:26px 22px 60px}
+.pane.on{display:block}
+.wrap{max-width:960px;margin:0 auto}
+.pane-head{margin-bottom:20px}
+.pane-head h2{margin:0 0 4px;font-size:1.55rem;font-weight:700;letter-spacing:-.4px}
+.pane-head p{margin:0;color:var(--ink2);font-size:.95rem}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-bottom:16px;box-shadow:var(--shadow-sm)}
+.card h3{margin:0 0 12px;font-size:1.08rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.card h3 .k{width:26px;height:26px;border-radius:8px;background:var(--accent-soft);color:var(--accent-ink);display:inline-flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+p.lead{color:var(--ink2);margin:0 0 10px}
+ul.clean{margin:6px 0;padding-left:20px}
+ul.clean li{margin:5px 0;color:var(--ink2)}
+ul.clean li b,ul.clean li strong{color:var(--ink)}
+.muted{color:var(--muted)}
+.hl{color:var(--accent-ink);font-weight:600}
+.tagpill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.72rem;font-weight:700}
+/* ---------- Equation / math panels ---------- */
+.eqfont{font-family:var(--eqfont)}
+.eqpanel{background:var(--eq-bg);border:1px solid var(--eq-bd);border-radius:11px;padding:13px 16px;margin:8px 0;font-family:var(--eqfont);color:var(--eq-ink);font-size:1.06rem}
+.eqpanel.center{text-align:center}
+.sys{display:inline-flex;align-items:center;gap:10px;background:var(--eq-bg);border:1px solid var(--eq-bd);border-radius:11px;padding:10px 20px;margin:8px 0;font-family:var(--eqfont);color:var(--eq-ink);max-width:100%}
+.sys .brace{font-size:2.7rem;font-weight:300;color:var(--eq-accent);line-height:.85;opacity:.7}
+.eqr{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:3px 0;font-family:var(--eqfont);font-size:1.05rem}
+.eqr .eL{text-align:right}
+.eqr .eM{color:var(--eq-accent);font-weight:600}
+.eqr .eR{text-align:left}
+.sys .ecu1 .eL,.sys .ecu1 .eR{color:var(--accent)}
+.sys .ecu2 .eL,.sys .ecu2 .eR{color:var(--bad)}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px;font-family:var(--eqfont)}
+.fr .fn{border-bottom:1.6px solid currentColor;padding:0 6px;line-height:1.25}
+.fr .fd{padding:0 6px;line-height:1.25}
+.dt{display:inline-flex;flex-direction:column;border-left:1.8px solid var(--eq-accent);border-right:1.8px solid var(--eq-accent);padding:2px 11px;margin:0 5px;vertical-align:middle;text-align:center;font-family:var(--eqfont)}
+.dt span{line-height:1.5}
+.rojo{color:var(--bad);font-weight:700}
+.azul{color:var(--accent);font-weight:700}
+.val{font-weight:700;font-family:var(--eqfont)}
+.dim{color:var(--muted);font-size:.9em}
+.e1c{color:var(--accent)} .e2c{color:var(--bad)}
+/* ---------- Theory bits ---------- */
+.tipogrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tipo{border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;background:var(--panel2)}
+.tipo svg{display:block;margin:0 auto 8px;background:var(--eq-bg);border-radius:9px;border:1px solid var(--eq-bd)}
+.tipo b{display:block;font-size:.97rem;margin-bottom:3px}
+.tipo small{color:var(--ink2);font-size:.82rem;line-height:1.45;display:block}
+.metcard{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:15px 16px}
+.metcard .mh{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.metcard .mn{width:27px;height:27px;border-radius:8px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0}
+[data-theme="dark"] .metcard .mn{color:#0f151d}
+.metcard h4{margin:0;font-size:1rem;font-weight:700}
+.metcard ol{margin:6px 0 0;padding-left:19px}
+.metcard ol li{margin:4px 0;font-size:.9rem;color:var(--ink2)}
+.metcard .when{margin:9px 0 0;font-size:.82rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+.phase{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line2)}
+.phase:last-child{border-bottom:none}
+.phase .pn{width:30px;height:30px;border-radius:9px;background:var(--accent-soft);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:.9rem}
+.phase b{display:block;font-size:.95rem}
+.phase span{color:var(--ink2);font-size:.88rem}
+.callout{background:var(--accent-soft);border:1px solid var(--eq-bd);border-radius:11px;padding:12px 16px;margin:12px 0;font-size:.92rem;color:var(--ink2)}
+.callout b{color:var(--accent-ink)}
+.note-src{font-size:.78rem;color:var(--muted);font-style:italic}
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border:1px solid var(--line);border-radius:10px;font:inherit;font-weight:600;font-size:.9rem;cursor:pointer;background:var(--panel2);color:var(--ink);transition:all .16s}
+.btn:hover{border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.06);color:#fff}
+.btn.sm{padding:6px 12px;font-size:.83rem}
+.btn.ghost{background:transparent}
+/* ---------- Home ---------- */
+.hero{display:grid;grid-template-columns:1fr;gap:16px}
+.home-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.hcard{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px;cursor:pointer;transition:all .18s;box-shadow:var(--shadow-sm)}
+.hcard:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:var(--shadow)}
+.hcard .em{font-size:1.5rem;margin-bottom:8px}
+.hcard b{display:block;font-size:.97rem;margin-bottom:3px}
+.hcard small{color:var(--ink2);font-size:.82rem;line-height:1.45}
+/* ---------- Footer credit ---------- */
+.appfoot{text-align:center;padding:18px 10px 8px;color:var(--muted);font-size:.8rem;border-top:1px solid var(--line2);margin-top:24px}
+.appfoot #cred{font-weight:700;color:var(--ink2);letter-spacing:.2px}
+/* ---------- Responsive ---------- */
+@media(max-width:820px){
+  #appmain{flex-direction:column}
+  aside#sidebar{width:100%;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;border-right:none;border-bottom:1px solid var(--line);padding:8px 10px;overflow-x:auto;overflow-y:visible;gap:8px}
+  .brand{border-bottom:none;padding:0;flex-shrink:0}
+  .brand p{display:none}
+  nav{flex-direction:row;flex:1;overflow-x:auto;scrollbar-width:none}
+  nav::-webkit-scrollbar{display:none}
+  nav button{white-space:nowrap}
+  .hbtns{border-top:none;padding-top:0;flex-shrink:0}
+  .grid2,.grid3,.tipogrid{grid-template-columns:1fr}
+  .home-cards{grid-template-columns:1fr 1fr}
+  .pane{padding:18px 12px 50px}
+  body{font-size:15px}
+}
+@media(max-width:480px){ .home-cards{grid-template-columns:1fr} }
+@media print{
+  aside#sidebar,.iconbtn,.no-print{display:none!important}
+  html,body{height:auto!important;overflow:visible!important}
+  #app{height:auto!important;display:block!important;overflow:visible!important}
+  main{overflow:visible!important;position:static!important;height:auto!important}
+  .pane{display:none;position:static!important;overflow:visible!important;padding:0;height:auto!important}
+  .pane.on{display:block}
+  .step,.card,.qbank-item{break-inside:avoid;page-break-inside:avoid}
+  .pdf-method-block{page-break-after:always;border-bottom:none!important}
+  body{background:#fff}
+  body.printing-exercise #app{display:none!important}
+  body.printing-exercise #shareModal{display:none!important}
+  body.printing-exercise #exModal{display:block!important;position:static!important;background:none!important;padding:0!important;backdrop-filter:none!important}
+  body.printing-exercise #exModal .modal{max-height:none!important;overflow:visible!important;box-shadow:none!important;border:none!important;max-width:100%!important;width:100%!important;border-radius:0!important}
+  body.printing-exercise #exModal .modal-body{overflow:visible!important;padding:0!important}
+  body.printing-exercise #exModal .modal-head{background:none!important;border-bottom:2px solid #000!important}
+}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="appmain">
+<aside id="sidebar">
+  <div class="brand">
+    <div class="mk">📐</div>
+    <div><h1>Ecuaciones 2×2</h1><p>Sistemas de ecuaciones lineales · Grado 9</p></div>
+  </div>
+  <nav id="nav">
+    <button data-sec="inicio" class="active"><span class="ic">🏠</span>Inicio</button>
+    <button data-sec="teoria"><span class="ic">📘</span>Teoría</button>
+    <button data-sec="resolutor"><span class="ic">🧮</span>Resolutor</button>
+    <button data-sec="ejercicios"><span class="ic">✏️</span>Ejercicios</button>
+    <button data-sec="test"><span class="ic">🎯</span>Test</button>
+  </nav>
+  <div class="hbtns">
+    <button class="iconbtn" id="themeBtn" title="Modo claro / oscuro" aria-label="Cambiar tema">🌙</button>
+    <button class="iconbtn no-print" onclick="openShare()" title="Compartir la app" aria-label="Compartir">📤</button>
+  </div>
+</aside>
+<main>
+
+<!-- ============ INICIO ============ -->
+<section id="sec-inicio" class="pane on">
+  <div class="wrap">
+    <div class="pane-head">
+      <h2>Sistemas de ecuaciones lineales 2×2</h2>
+      <p>Aprende, resuelve y evalúa: teoría del Ministerio de Educación (Guía Postprimaria Rural, grado 9), resolutor paso a paso y práctica por niveles.</p>
+    </div>
+    <div class="card">
+      <p class="lead">Un <b>sistema 2×2</b> aparece siempre que hay <b>dos cantidades desconocidas</b> y <b>dos condiciones</b> que las relacionan: el precio del kilo de yuca y de papa en la galería, cuántas gallinas y cuántos cerdos hay en el corral, o cómo repartir los acres de una finca entre dos cultivos. Esta aplicación te acompaña con la teoría de los <b>cuatro métodos</b>, un <b>resolutor</b> que muestra cada paso y una <b>evaluación</b> para comprobar lo aprendido.</p>
+    </div>
+    <div class="home-cards">
+      <div class="hcard" onclick="go('teoria')"><div class="em">📘</div><b>Teoría</b><small>Definición, clasificación gráfica, los 4 métodos y la regla de Cramer.</small></div>
+      <div class="hcard" onclick="go('resolutor')"><div class="em">🧮</div><b>Resolutor</b><small>Escribe un sistema y observa la solución paso a paso, con gráfica y comprobación.</small></div>
+      <div class="hcard" onclick="go('ejercicios')"><div class="em">✏️</div><b>Ejercicios</b><small>60 ejercicios en 3 niveles con problemas del campo y solución explicada.</small></div>
+      <div class="hcard" onclick="go('test')"><div class="em">🎯</div><b>Test</b><small>Repositorio de 30 preguntas con respuesta y explicación a la vista; ideal para repasar o imprimir.</small></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3><span class="k">✦</span>¿Qué puedes hacer aquí?</h3>
+      <ul class="clean">
+        <li><b>Resolver cualquier sistema</b> por igualación, sustitución, reducción o determinantes, con cada operación explicada y la <b>comprobación</b> de la solución.</li>
+        <li><b>Ver la gráfica</b> de las dos rectas y su punto de intersección.</li>
+        <li><b>Practicar por niveles</b> (Fácil, Medio, Difícil) y <b>autoevaluarte</b> con el test.</li>
+        <li><b>Trabajar sin internet</b> y <b>compartir</b> la app para usarla en el computador o el celular.</li>
+      </ul>
+    </div>
+    <div class="callout">💡 <b>Ruta sugerida:</b> revisa la <b>Teoría</b>, mira ejemplos en el <b>Resolutor</b>, practica en <b>Ejercicios</b> desde el nivel Fácil y termina con el <b>Test</b>.</div>
+    <div class="appfoot">Material educativo · <span id="cred"></span> · Matemáticas grado 9<br><span class="note-src">Teoría basada en «Matemáticas — Grado 9, Postprimaria Rural» (Ministerio de Educación Nacional).</span></div>
+  </div>
+</section>
+
+<!-- ============ TEORÍA ============ -->
+<section id="sec-teoria" class="pane">
+  <div class="wrap">
+    <div class="pane-head">
+      <h2>Teoría</h2>
+      <p>Sistemas de ecuaciones lineales 2×2 — según la guía del MEN (grado 9).</p>
+    </div>
+
+    <div class="card">
+      <h3><span class="k">1</span>¿Qué es un sistema 2×2?</h3>
+      <p class="lead">Es un conjunto de <b>dos ecuaciones lineales</b> (de primer grado) con <b>dos incógnitas</b>, casi siempre <b>x</b> e <b>y</b>. Se llama «2×2» porque tiene <b>2 ecuaciones y 2 incógnitas</b>. Su forma general es:</p>
+      <div class="sys"><div class="brace">{</div><div>
+        <div class="eqr ecu1"><span class="eL">a₁x + b₁y</span><span class="eM">=</span><span class="eR">c₁</span></div>
+        <div class="eqr ecu2"><span class="eL">a₂x + b₂y</span><span class="eM">=</span><span class="eR">c₂</span></div>
+      </div></div>
+      <p class="lead" style="margin-top:10px"><b>Resolver el sistema</b> es hallar los valores de <b>x</b> e <b>y</b> que hacen <b>verdaderas las dos ecuaciones a la vez</b>. Gráficamente, cada ecuación es una <b>recta</b>, y la solución es el <b>par ordenado común</b> a ambas: su <b>punto de intersección</b>.</p>
+    </div>
+
+    <div class="card">
+      <h3><span class="k">2</span>Clasificación según la gráfica</h3>
+      <p class="lead">Al graficar el sistema pueden darse tres casos (Guía 2 del MEN):</p>
+      <div class="tipogrid">
+        <div class="tipo">
+          <svg width="150" height="104" viewBox="0 0 150 104"><line x1="12" y1="94" x2="138" y2="16" stroke="var(--accent)" stroke-width="2.6"/><line x1="12" y1="22" x2="138" y2="90" stroke="var(--bad)" stroke-width="2.6"/><circle cx="75" cy="54" r="4.5" fill="var(--ok)"/></svg>
+          <b>Una solución</b>
+          <small>Rectas <b>no paralelas</b>: se cortan en un punto. <span class="hl">Sistema consistente.</span></small>
+        </div>
+        <div class="tipo">
+          <svg width="150" height="104" viewBox="0 0 150 104"><line x1="12" y1="78" x2="138" y2="30" stroke="var(--accent)" stroke-width="2.6"/><line x1="12" y1="96" x2="138" y2="48" stroke="var(--bad)" stroke-width="2.6"/></svg>
+          <b>Sin solución</b>
+          <small>Rectas <b>paralelas</b>: nunca se cortan. <span class="hl">Sistema inconsistente.</span></small>
+        </div>
+        <div class="tipo">
+          <svg width="150" height="104" viewBox="0 0 150 104"><line x1="12" y1="90" x2="138" y2="24" stroke="var(--accent)" stroke-width="5.5" opacity=".45"/><line x1="12" y1="90" x2="138" y2="24" stroke="var(--bad)" stroke-width="2.2"/></svg>
+          <b>Infinitas soluciones</b>
+          <small>Rectas <b>idénticas</b> (la misma): todo punto es solución. <span class="hl">Sistema dependiente.</span></small>
+        </div>
+      </div>
+      <div class="callout">🔑 <b>Regla práctica:</b> el sistema tiene <b>una única solución</b> cuando el determinante <b>a₁·b₂ − a₂·b₁ ≠ 0</b>. Si es 0, será inconsistente (paralelas) o dependiente (idénticas).</div>
+    </div>
+
+    <div class="card">
+      <h3><span class="k">3</span>Los cuatro métodos de solución</h3>
+      <div class="grid2">
+        <div class="metcard">
+          <div class="mh"><span class="mn">1</span><h4>Igualación</h4></div>
+          <p class="muted" style="margin:0 0 6px;font-size:.86rem">Despejar la misma incógnita en ambas ecuaciones e igualar las expresiones.</p>
+          <ol>
+            <li>Despeja la misma incógnita en las dos ecuaciones.</li>
+            <li>Iguala las expresiones: queda una ecuación con una incógnita.</li>
+            <li>Resuelve esa ecuación.</li>
+            <li>Sustituye el valor hallado en uno de los despejes.</li>
+            <li>Los dos valores son la solución del sistema.</li>
+          </ol>
+          <p class="when">👍 Útil cuando es fácil despejar la misma letra en ambas.</p>
+        </div>
+        <div class="metcard">
+          <div class="mh"><span class="mn">2</span><h4>Sustitución</h4></div>
+          <p class="muted" style="margin:0 0 6px;font-size:.86rem">Despejar una incógnita en una ecuación y reemplazarla en la otra.</p>
+          <ol>
+            <li>Despeja una incógnita en una de las ecuaciones.</li>
+            <li>Sustituye esa expresión en la otra ecuación.</li>
+            <li>Resuelve la ecuación de una sola incógnita.</li>
+            <li>Reemplaza el valor en la ecuación donde despejaste.</li>
+            <li>Los dos valores son la solución.</li>
+          </ol>
+          <p class="when">👍 Indicado cuando una incógnita ya está (casi) despejada.</p>
+        </div>
+        <div class="metcard">
+          <div class="mh"><span class="mn">3</span><h4>Reducción (eliminación)</h4></div>
+          <p class="muted" style="margin:0 0 6px;font-size:.86rem">Amplificar para que una incógnita tenga coeficientes opuestos y sumar.</p>
+          <ol>
+            <li>Multiplica las ecuaciones por números convenientes.</li>
+            <li>Súmalas: desaparece una incógnita.</li>
+            <li>Resuelve la ecuación resultante.</li>
+            <li>Sustituye el valor en una ecuación inicial.</li>
+            <li>Los dos valores son la solución.</li>
+          </ol>
+          <p class="when">👍 Muy práctico con coeficientes enteros.</p>
+        </div>
+        <div class="metcard">
+          <div class="mh"><span class="mn">4</span><h4>Determinantes (regla de Cramer)</h4></div>
+          <p class="muted" style="margin:0 0 6px;font-size:.86rem">Resolver usando el determinante de la matriz de coeficientes.</p>
+          <ol>
+            <li>Calcula |A| = a₁·b₂ − a₂·b₁ (determinante del sistema).</li>
+            <li>Calcula |A|ₓ y |A|ᵧ cambiando la columna respectiva por c₁, c₂.</li>
+            <li>Entonces x = |A|ₓ / |A| &nbsp;y&nbsp; y = |A|ᵧ / |A| (con |A| ≠ 0).</li>
+          </ol>
+          <p class="when">👍 Ordenado y rápido; además |A| ≠ 0 confirma solución única.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="k">4</span>Determinantes y regla de Cramer</h3>
+      <p class="lead">El <b>determinante</b> de una matriz 2×2 se evalúa <b>multiplicando en diagonal</b>:</p>
+      <div class="eqpanel center">|A| = <span class="dt"><span>a₁&nbsp;&nbsp;&nbsp;b₁</span><span>a₂&nbsp;&nbsp;&nbsp;b₂</span></span> = a₁·b₂ − a₂·b₁</div>
+      <p class="lead" style="margin-top:10px">Para el sistema a₁x + b₁y = c₁ ; a₂x + b₂y = c₂, la regla de Cramer da:</p>
+      <div class="eqpanel center">
+        |A|ₓ = c₁·b₂ − c₂·b₁ &nbsp;&nbsp;·&nbsp;&nbsp; |A|ᵧ = a₁·c₂ − a₂·c₁<br><br>
+        x = <span class="fr"><span class="fn">|A|ₓ</span><span class="fd">|A|</span></span> &nbsp;&nbsp;&nbsp; y = <span class="fr"><span class="fn">|A|ᵧ</span><span class="fd">|A|</span></span>
+      </div>
+      <p class="note-src">Guía 4 del MEN — «Determinantes 2×2».</p>
+    </div>
+
+    <div class="card">
+      <h3><span class="k">5</span>Cuatro fases para resolver un problema</h3>
+      <p class="lead">Cuando el sistema viene de un enunciado (Guía 3 del MEN), conviene seguir estas fases:</p>
+      <div class="phase"><span class="pn">1</span><div><b>Comprensión</b><span>Leer con atención e identificar los datos y las incógnitas.</span></div></div>
+      <div class="phase"><span class="pn">2</span><div><b>Planteamiento</b><span>Relacionar los datos con las incógnitas y escribir las dos ecuaciones.</span></div></div>
+      <div class="phase"><span class="pn">3</span><div><b>Resolución</b><span>Aplicar un método para obtener el valor numérico de las incógnitas.</span></div></div>
+      <div class="phase"><span class="pn">4</span><div><b>Comprobación</b><span>Verificar que la solución cumpla las condiciones del problema.</span></div></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="k">!</span>Errores comunes</h3>
+      <ul class="clean">
+        <li><b>Ley de signos:</b> al pasar un término al otro lado cambia su signo (−3y pasa como +3y).</li>
+        <li><b>Amplificar la ecuación:</b> si multiplicas por un número, multiplica <b>todos</b> los términos, incluido el independiente.</li>
+        <li><b>No comprobar:</b> reemplaza siempre la solución en las <b>dos</b> ecuaciones originales.</li>
+        <li><b>Confundir las incógnitas:</b> en los problemas, define primero qué representa x y qué representa y.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESOLUTOR ============ -->
+<section id="sec-resolutor" class="pane">
+  <div class="wrap">
+    <div class="pane-head">
+      <h2>Resolutor paso a paso</h2>
+      <p>Escribe los coeficientes, elige un método y observa la solución completa con gráfica y comprobación.</p>
+    </div>
+    <div class="card no-print">
+      <h3><span class="k">✎</span>Ingresa el sistema</h3>
+      <div class="eqpanel">
+        <div class="coefrow">
+          <span class="clab e1c">Ecuación 1</span>
+          <input type="number" id="ia1" step="any" value="3"><span class="vx e1c">x</span>
+          <span class="op">+</span>
+          <input type="number" id="ib1" step="any" value="-4"><span class="vx e1c">y</span>
+          <span class="op">=</span>
+          <input type="number" id="ic1" step="any" value="-6">
+        </div>
+        <div class="coefrow">
+          <span class="clab e2c">Ecuación 2</span>
+          <input type="number" id="ia2" step="any" value="2"><span class="vx e2c">x</span>
+          <span class="op">+</span>
+          <input type="number" id="ib2" step="any" value="4"><span class="vx e2c">y</span>
+          <span class="op">=</span>
+          <input type="number" id="ic2" step="any" value="16">
+        </div>
+      </div>
+      <p class="dim" style="margin:2px 0 12px">Usa enteros positivos o negativos. Para un coeficiente negativo escribe, por ejemplo, −4.</p>
+      <div class="methods">
+        <span class="mlbl">Resolver por:</span>
+        <button class="btn primary sm" onclick="resolver('igualacion')">Igualación</button>
+        <button class="btn primary sm" onclick="resolver('sustitucion')">Sustitución</button>
+        <button class="btn primary sm" onclick="resolver('reduccion')">Reducción</button>
+        <button class="btn primary sm" onclick="resolver('determinantes')">Determinantes</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn ghost sm" onclick="ejemploR(0)">Ejemplo (MEN)</button>
+        <button class="btn ghost sm" onclick="ejemploR(1)">Sin solución</button>
+        <button class="btn ghost sm" onclick="ejemploR(2)">Infinitas</button>
+        <button class="btn ghost sm" onclick="sistemaAleatorio()">🎲 Aleatorio</button>
+        <button class="btn ghost sm" onclick="window.print()">🖨️ Imprimir</button>
+        <button class="btn primary sm" onclick="generarPDFResolutor()">📄 Generar PDF (todos los pasos)</button>
+      </div>
+    </div>
+    <div id="r-out"></div>
+    <div id="r-graphwrap" class="card" style="display:none">
+      <h3><span class="k">📈</span>Gráfica del sistema</h3>
+      <p class="dim" style="margin:0 0 10px">Cada ecuación es una recta: <b class="e1c">Ecuación 1</b> y <b class="e2c">Ecuación 2</b>. La solución es su punto de intersección.</p>
+      <canvas id="r-graph" class="graph" width="640" height="480"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EJERCICIOS ============ -->
+<section id="sec-ejercicios" class="pane">
+  <div class="wrap">
+    <div class="pane-head">
+      <h2>Banco de ejercicios</h2>
+      <p>60 ejercicios en tres niveles. Intenta resolver primero en tu cuaderno, verifica y luego estudia la solución.</p>
+    </div>
+    <div class="lvltabs no-print">
+      <button class="lvltab f on" data-lvl="f" onclick="setLevel('f')"><b>Fácil</b><span id="cnt-f"></span></button>
+      <button class="lvltab m" data-lvl="m" onclick="setLevel('m')"><b>Medio</b><span id="cnt-m"></span></button>
+      <button class="lvltab d" data-lvl="d" onclick="setLevel('d')"><b>Difícil</b><span id="cnt-d"></span></button>
+    </div>
+    <div class="pbar no-print"><div id="pbarfill"></div></div>
+    <div id="lvl-desc" class="callout" style="margin-top:0"></div>
+    <div class="exgrid" id="exgrid"></div>
+    <div class="no-print" style="margin-top:14px;text-align:right">
+      <button class="btn ghost sm" onclick="resetProgreso()">Reiniciar mi progreso</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEST ============ -->
+<section id="sec-test" class="pane">
+  <div class="wrap">
+    <div class="pane-head">
+      <h2>Test — Repositorio de preguntas</h2>
+      <p>Banco de 30 preguntas de selección múltiple. La respuesta correcta y su explicación se muestran de inmediato junto a cada pregunta, como una base de datos de consulta.</p>
+    </div>
+    <div class="card no-print" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+      <div class="tfilters" id="testFilters"></div>
+      <button class="btn primary sm" onclick="generarPDFTest()">📄 Generar PDF (todas las preguntas)</button>
+    </div>
+    <div id="testBank"></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<div class="appfoot no-print"><span id="cred2"></span> · Matemáticas grado 9</div>
+</div>
+
+<!-- ============ MODAL EJERCICIO ============ -->
+<div class="overlay" id="exModal">
+  <div class="modal">
+    <div class="modal-head" id="exHead">
+      <h3 id="exTitle">Ejercicio</h3>
+      <button class="xbtn no-print" onclick="closeEx()">✕</button>
+    </div>
+    <div class="modal-body" id="exBody"></div>
+    <div class="modal-foot no-print">
+      <div style="display:flex;gap:8px">
+        <button class="btn ghost sm" onclick="navEx(-1)">◀ Anterior</button>
+        <button class="btn ghost sm" onclick="navEx(1)">Siguiente ▶</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn primary sm" onclick="generarPDFEjercicio()">📄 Generar PDF</button>
+        <button class="btn sm" onclick="closeEx()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL COMPARTIR ============ -->
+<div class="overlay" id="shareModal" onclick="if(event.target===this)closeShare()">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head">
+      <h3>📤 Compartir la App</h3>
+      <button class="xbtn no-print" onclick="closeShare()">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:10px">
+      <button class="share-card" onclick="shareDownload()">
+        <span class="share-ico">📥</span>
+        <span><b>Descargar archivo HTML</b><small>Un solo archivo autónomo. Ábrelo con doble clic en cualquier PC o celular, sin internet.</small></span>
+      </button>
+      <button class="share-card" onclick="shareSystem()">
+        <span class="share-ico">📲</span>
+        <span><b>Compartir al celular</b><small>Envía el archivo por WhatsApp, Bluetooth o correo con el menú del dispositivo.</small></span>
+      </button>
+      <button class="share-card" onclick="shareCopyLink()">
+        <span class="share-ico">🔗</span>
+        <span><b>Copiar enlace</b><small>Copia la dirección de esta app (útil dentro de la sala de informática).</small></span>
+      </button>
+      <button class="share-card" onclick="shareWhatsApp()">
+        <span class="share-ico">💬</span>
+        <span><b>Enviar enlace por WhatsApp</b><small>Comparte el enlace por WhatsApp (requiere conexión en ese momento).</small></span>
+      </button>
+      <div id="shareMsg" class="test-fb"></div>
+      <div class="callout" style="margin:2px 0 0;font-size:.82rem">
+        <b>📴 Sin internet:</b> en PC descarga el archivo y ábrelo con doble clic; en celular compártelo por WhatsApp o Bluetooth y ábrelo con Chrome. Todo funciona local: teoría, resolutor, ejercicios, test y progreso.
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ---------- Resolutor / coeficientes ---------- */
+.coefrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:5px 0}
+.coefrow .clab{font-weight:700;width:96px;font-family:var(--ui);font-size:.9rem}
+.coefrow input{width:70px;padding:8px 6px;border:1px solid var(--eq-bd);border-radius:8px;font-family:var(--eqfont);font-size:1.05rem;text-align:center;background:var(--panel);color:var(--ink)}
+.coefrow input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.coefrow .vx{font-family:var(--eqfont);font-weight:700;font-size:1.05rem}
+.coefrow .op{color:var(--eq-accent);font-weight:600;font-family:var(--eqfont)}
+.methods{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.methods .mlbl{font-weight:700;font-size:.9rem;color:var(--ink2)}
+canvas.graph{width:100%;max-width:560px;height:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;display:block}
+/* ---------- Steps ---------- */
+.step{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px;background:var(--panel);animation:fade .3s ease}
+.step .sn{flex:0 0 70px;background:var(--accent-soft);color:var(--accent-ink);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;padding:8px;text-align:center;border-right:1px solid var(--line)}
+.step .sn b{font-size:1.35rem}
+.step .sb{flex:1;padding:13px 16px;min-width:0}
+.step .sb h4{margin:0 0 8px;font-size:.98rem;font-weight:700}
+.step.final .sn{background:var(--ok-soft);color:var(--ok)}
+.step.verif .sn{background:var(--warn-soft);color:var(--warn)}
+.step.warn .sn{background:var(--bad-soft);color:var(--bad)}
+.eqwrap{background:var(--eq-bg);border:1px solid var(--eq-bd);border-radius:10px;padding:11px 14px;font-family:var(--eqfont);color:var(--eq-ink)}
+.eqwrap .dim,.eqwrap p,.eqwrap h4,.eqwrap h5{font-family:var(--ui)}
+.eqwrap .sys{background:transparent;border:none;padding:0;margin:2px 0}
+.eqf{font-family:var(--eqfont)}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.minibox{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.minibox h5{margin:0 0 6px;font-size:.83rem;color:var(--ink2);font-family:var(--ui)}
+.okline{color:var(--ok);font-weight:700}
+.badline{color:var(--bad);font-weight:700}
+.solchip{display:inline-flex;align-items:center;gap:8px;background:var(--ok-soft);border:1px solid var(--ok);border-radius:11px;padding:7px 15px;font-size:1.05rem;font-weight:700;color:var(--ok);margin:4px 8px 4px 0;font-family:var(--eqfont)}
+.titlestep{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:11px 15px;background:var(--accent-soft);border:1px solid var(--eq-bd);border-radius:11px;font-weight:700;color:var(--accent-ink)}
+.pdf-method-block{margin-bottom:22px;padding-bottom:16px;border-bottom:2px dashed var(--line)}
+.pdf-method-block:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* ---------- Ejercicios ---------- */
+.lvltabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.lvltab{flex:1;min-width:130px;border:1px solid var(--line);background:var(--panel);border-radius:11px;padding:11px;font:inherit;cursor:pointer;text-align:center;transition:all .16s;color:var(--ink2)}
+.lvltab b{display:block;font-size:.98rem}
+.lvltab span{display:block;font-size:.74rem;color:var(--muted);margin-top:2px}
+.lvltab.f.on{background:var(--ok-soft);border-color:var(--lf);color:var(--lf)}
+.lvltab.m.on{background:var(--warn-soft);border-color:var(--lm);color:var(--lm)}
+.lvltab.d.on{background:var(--bad-soft);border-color:var(--ld);color:var(--ld)}
+.lvltab.on span{color:inherit;opacity:.8}
+.pbar{height:8px;background:var(--line);border-radius:999px;overflow:hidden;margin:0 0 16px}
+.pbar div{height:100%;border-radius:999px;background:var(--accent);width:0;transition:width .4s}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:11px}
+.excard{border:1px solid var(--line);background:var(--panel);border-radius:11px;padding:11px;cursor:pointer;font:inherit;text-align:left;transition:all .16s;position:relative}
+.excard:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--accent)}
+.excard .n{font-weight:700;font-size:.76rem;color:#fff;background:var(--lvc,#64748b);border-radius:6px;padding:1px 8px;display:inline-block}
+[data-theme="dark"] .excard .n{color:#0f151d}
+.excard .tt{display:block;font-weight:600;font-size:.85rem;margin-top:7px;color:var(--ink)}
+.excard .mini{display:block;font-size:.75rem;color:var(--ink2);margin-top:4px;line-height:1.4;font-family:var(--eqfont)}
+.excard .st{position:absolute;top:9px;right:10px;font-size:.95rem}
+.excard.done{border-color:var(--lf)}
+.excard.seen{border-color:var(--lm)}
+/* ---------- Attempt ---------- */
+.attempt{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:10px 0;font-family:var(--eqfont)}
+.attempt input{width:100px;padding:8px;border:1px solid var(--eq-bd);border-radius:8px;font:inherit;font-family:var(--eqfont);text-align:center;background:var(--panel);color:var(--ink)}
+.attempt input:focus{outline:none;border-color:var(--accent)}
+.enun{background:var(--eq-bg);border:1px solid var(--eq-bd);border-left:4px solid var(--lvc,var(--accent));border-radius:10px;padding:12px 14px;font-size:1rem;line-height:1.6}
+/* ---------- Modal ---------- */
+.overlay{position:fixed;inset:0;background:rgba(20,27,36,.55);z-index:100;display:none;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(3px)}
+.overlay.on{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;width:100%;max-width:840px;max-height:94vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow);animation:fade .25s ease}
+.modal-head{padding:14px 18px;background:var(--accent-soft);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.modal-head h3{margin:0;font-size:1.05rem;flex:1;color:var(--accent-ink)}
+.xbtn{background:var(--panel);border:1px solid var(--line);color:var(--ink2);width:30px;height:30px;border-radius:8px;font-size:.95rem;cursor:pointer}
+.xbtn:hover{border-color:var(--bad);color:var(--bad)}
+.modal-body{padding:16px 20px;overflow-y:auto}
+.modal-foot{padding:11px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+/* ---------- Share ---------- */
+.share-card{display:flex;align-items:center;gap:13px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);cursor:pointer;transition:all .16s;text-align:left;width:100%;font:inherit;color:var(--ink)}
+.share-card:hover{border-color:var(--accent);background:var(--accent-soft)}
+.share-ico{width:42px;height:42px;border-radius:11px;background:var(--eq-bg);border:1px solid var(--eq-bd);display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0}
+.share-card b{display:block;font-size:.92rem}
+.share-card small{display:block;color:var(--ink2);font-size:.77rem;margin-top:2px}
+/* ---------- Test (repositorio de preguntas) ---------- */
+.test-tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.7rem;font-weight:700;background:var(--accent-soft);color:var(--accent-ink);margin-bottom:8px}
+.test-fb{margin-top:12px;padding:0;font-size:.9rem;display:none}
+.test-fb.show{display:block;padding:11px 14px;border-radius:10px}
+.test-fb.good{background:var(--ok-soft);border:1px solid var(--ok);color:var(--ok)}
+.test-fb.bad{background:var(--bad-soft);border:1px solid var(--bad);color:var(--bad)}
+.test-fb b{color:inherit}
+.tfilters{display:flex;flex-wrap:wrap;gap:6px}
+.tf-chip{padding:5px 12px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);font-size:.78rem;font-weight:700;cursor:pointer;color:var(--ink2);font-family:inherit}
+.tf-chip:hover{border-color:var(--accent);color:var(--accent-ink)}
+.tf-chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+.qbank-item{border:1px solid var(--line);border-radius:12px;padding:15px 17px;margin-bottom:12px;background:var(--panel)}
+.qbank-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.qbank-num{font-size:.78rem;color:var(--muted);font-weight:700;white-space:nowrap}
+.qbank-q{font-size:1rem;font-weight:600;line-height:1.5;margin-bottom:11px}
+.qbank-q .eqf{font-family:var(--eqfont)}
+.qbank-opts{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.qbank-opt{display:flex;align-items:center;gap:11px;padding:9px 13px;border:1px solid var(--line);border-radius:10px;font-size:.92rem;background:var(--panel2)}
+.qbank-opt .lt{width:25px;height:25px;border-radius:7px;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:.82rem}
+.qbank-opt.correct{border-color:var(--ok);background:var(--ok-soft)}
+.qbank-opt.correct .lt{background:var(--ok);color:#fff;border-color:var(--ok)}
+[data-theme="dark"] .qbank-opt.correct .lt{color:#0f151d}
+.ok-badge{margin-left:auto;font-size:.74rem;font-weight:700;color:var(--ok);white-space:nowrap}
+.qbank-ex{font-size:.86rem;color:var(--ink2);border-top:1px dashed var(--line);padding-top:9px;margin-top:2px}
+.qbank-ex b{color:var(--ink)}
+</style>
+
+<script>
+/* ================================================================
+   Ecuaciones 2x2 v3 — motor de resolución paso a paso (offline)
+   ================================================================ */
+
+/* ---------- Fracciones exactas ---------- */
+function gcdi(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a||1;}
+function fr(n,d){d=(d===undefined)?1:d;if(d<0){n=-n;d=-d;}var g=gcdi(n,d);return{n:n/g,d:d/g};}
+function fAdd(x,y){return fr(x.n*y.d+y.n*x.d,x.d*y.d);}
+function fSub(x,y){return fr(x.n*y.d-y.n*x.d,x.d*y.d);}
+function fMul(x,y){return fr(x.n*y.n,x.d*y.d);}
+function fDiv(x,y){return fr(x.n*y.d,x.d*y.n);}
+function fVal(x){return x.n/x.d;}
+function fmtDec(v){var r=Math.round(v*1000)/1000;return (''+r).replace('.',',');}
+function fHTML(x,red){
+  var cls=red?' rojo':'';
+  if(x.d===1)return '<b class="val'+cls+'">'+x.n+'</b>';
+  var neg=x.n<0;
+  var f='<span class="fr'+cls+'"><span class="fn">'+Math.abs(x.n)+'</span><span class="fd">'+x.d+'</span></span>';
+  return neg?('−'+f):f;
+}
+function fFull(x){ // fracción + decimal
+  if(x.d===1)return fHTML(x,true);
+  return fHTML(x,true)+' <span class="dim">= '+fmtDec(fVal(x))+'</span>';
+}
+function fPlain(x){ if(x.d===1)return ''+x.n; return x.n+'/'+x.d; }
+
+/* ---------- Formato de términos y ecuaciones ---------- */
+function T(c,v,first){ // término con signo: T(-3,'y') → " − 3y"
+  if(c===0)return '';
+  var s=first?(c<0?'−':''):(c<0?' − ':' + ');
+  var a=Math.abs(c);
+  var num=(a===1&&v)?'':a;
+  return s+num+v;
+}
+function eqRow(L,R,cls){return '<div class="eqr'+(cls?' '+cls:'')+'"><span class="eL">'+L+'</span><span class="eM">=</span><span class="eR">'+R+'</span></div>';}
+function eqLR(a,b,c,u,v){var L=T(a,u,true)+T(b,v);if(!L)L='0';return {L:L,R:''+c};}
+function sysHTML(s,u,v){
+  u=u||'x';v=v||'y';
+  var e1=eqLR(s.a1,s.b1,s.c1,u,v),e2=eqLR(s.a2,s.b2,s.c2,u,v);
+  return '<div class="sys"><div class="brace">{</div><div>'+eqRow(e1.L,e1.R,'ecu1')+eqRow(e2.L,e2.R,'ecu2')+'</div></div>';
+}
+function despeje(c,b,a,vv){ // HTML de (c − b·vv)/a
+  var num=''+c+T(-b,vv);
+  if(a===1)return num;
+  if(a===-1)return '−('+num+')';
+  return '<span class="fr"><span class="fn">'+num+'</span><span class="fd">'+a+'</span></span>';
+}
+function det2(p,q,r,s2){return '<span class="dt"><span>'+p+'&nbsp;&nbsp;&nbsp;'+q+'</span><span>'+r+'&nbsp;&nbsp;&nbsp;'+s2+'</span></span>';}
+function stepCard(num,title,body,extra){
+  var lab=(typeof num==='number')?('Paso<br><b>'+num+'</b>'):num;
+  return '<div class="step'+(extra?' '+extra:'')+'"><div class="sn">'+lab+'</div><div class="sb"><h4>'+title+'</h4><div class="eqwrap">'+body+'</div></div></div>';
+}
+
+/* ---------- Clasificación ---------- */
+function clasificar(s){
+  var det=s.a1*s.b2-s.a2*s.b1;
+  if(det!==0){
+    var dx=s.c1*s.b2-s.c2*s.b1, dy=s.a1*s.c2-s.a2*s.c1;
+    return {tipo:'unica',det:det,x:fr(dx,det),y:fr(dy,det)};
+  }
+  var prop=(s.a1*s.c2-s.a2*s.c1===0)&&(s.b1*s.c2-s.b2*s.c1===0);
+  return {tipo:prop?'infinitas':'ninguna',det:0};
+}
+
+/* ---------- Tarjetas comunes ---------- */
+function cardSistema(s){
+  return stepCard('Paso<br><b>0</b>','Escribimos el sistema de ecuaciones',
+    sysHTML(s)+'<p class="dim" style="margin:4px 0 0">Identificamos coeficientes: a₁='+s.a1+', b₁='+s.b1+', c₁='+s.c1+' &nbsp;|&nbsp; a₂='+s.a2+', b₂='+s.b2+', c₂='+s.c2+'</p>');
+}
+function cardSolucion(X,Y){
+  return '<div class="step final"><div class="sn">✅<br>Solución</div><div class="sb"><h4>Solución del sistema</h4>'+
+    '<span class="solchip">x = '+fFull(X)+'</span><span class="solchip">y = '+fFull(Y)+'</span>'+
+    '<p class="dim" style="margin:8px 0 0">El punto de corte de las dos rectas es ('+fPlain(X)+' , '+fPlain(Y)+').</p></div></div>';
+}
+function cardVerificacion(s,X,Y){
+  function una(a,b,c,n){
+    var t1=fMul(fr(a),X),t2=fMul(fr(b),Y),res=fAdd(t1,t2),ok=(fVal(res)===c);
+    var e=eqLR(a,b,c,'x','y');
+    var h='<div class="minibox"><h5>Ecuación '+n+': '+e.L+' = '+e.R+'</h5>';
+    h+=eqRow(a+'·('+fPlain(X)+') + '+b+'·('+fPlain(Y)+')',''+c);
+    h+=eqRow(fHTML(t1)+' + '+fHTML(t2),''+c);
+    h+=eqRow(fHTML(res),''+c);
+    h+='<p class="'+(ok?'okline':'badline')+'" style="margin:6px 0 0">'+(ok?'✔ La igualdad se cumple':'✘ La igualdad NO se cumple')+'</p></div>';
+    return h;
+  }
+  return '<div class="step verif"><div class="sn">🔍<br>Verificar</div><div class="sb"><h4>Verificación: reemplazamos x e y en las ecuaciones originales</h4><div class="twocol">'+una(s.a1,s.b1,s.c1,1)+una(s.a2,s.b2,s.c2,2)+'</div></div></div>';
+}
+function cardsDegenerado(s,cl){
+  var h=cardSistema(s);
+  var det=s.a1+'·'+s.b2+' − '+s.a2+'·'+s.b1;
+  h+=stepCard(1,'Calculamos el determinante del sistema',
+    eqRow('Δ = a₁·b₂ − a₂·b₁',det+' = <b>0</b>')+
+    '<p style="margin:6px 0 0">Como <b>Δ = 0</b>, el sistema <b>no tiene solución única</b>. Veamos de qué caso se trata.</p>');
+  if(cl.tipo==='infinitas'){
+    h+='<div class="step warn"><div class="sn">♾️</div><div class="sb"><h4>Sistema dependiente: infinitas soluciones</h4><p style="line-height:1.6;margin:4px 0">Las dos ecuaciones representan <b>la misma recta</b> (rectas idénticas): una es múltiplo de la otra. <b>Todo punto de la recta es solución</b> del sistema.</p></div></div>';
+  }else{
+    h+='<div class="step warn"><div class="sn">🚫</div><div class="sb"><h4>Sistema inconsistente: no tiene solución</h4><p style="line-height:1.6;margin:4px 0">Las rectas son <b>paralelas</b>: igual inclinación pero distinto término independiente, así que <b>no se intersecan</b>. No existe ningún par (x, y) que cumpla las dos ecuaciones a la vez.</p></div></div>';
+  }
+  return h;
+}
+
+/* ---------- Método: determinantes (Cramer) ---------- */
+function genDeterminantes(s,cl){
+  var h=cardSistema(s);
+  h+=stepCard(1,'Calculamos el determinante del sistema (Δ)',
+    '<p style="margin:0 0 6px">Se forma con los coeficientes de x e y, y se resuelve <b>multiplicando en cruz</b>:</p>'+
+    eqRow('Δ = '+det2('a₁','b₁','a₂','b₂')+' = '+det2(s.a1,s.b1,s.a2,s.b2),'('+s.a1+')·('+s.b2+') − ('+s.a2+')·('+s.b1+') = <b>'+cl.det+'</b>')+
+    '<p class="dim" style="margin:6px 0 0">Como Δ = '+cl.det+' ≠ 0, el sistema tiene solución única.</p>');
+  var dx=s.c1*s.b2-s.c2*s.b1, dy=s.a1*s.c2-s.a2*s.c1;
+  h+=stepCard(2,'Calculamos Δx (reemplazamos la columna de x por los términos independientes)',
+    eqRow('Δx = '+det2('c₁','b₁','c₂','b₂')+' = '+det2(s.c1,s.b1,s.c2,s.b2),'('+s.c1+')·('+s.b2+') − ('+s.c2+')·('+s.b1+') = <b>'+dx+'</b>'));
+  h+=stepCard(3,'Calculamos Δy (reemplazamos la columna de y por los términos independientes)',
+    eqRow('Δy = '+det2('a₁','c₁','a₂','c₂')+' = '+det2(s.a1,s.c1,s.a2,s.c2),'('+s.a1+')·('+s.c2+') − ('+s.a2+')·('+s.c1+') = <b>'+dy+'</b>'));
+  h+=stepCard(4,'Aplicamos la regla de Cramer',
+    eqRow('x = Δx / Δ','<span class="fr"><span class="fn">'+dx+'</span><span class="fd">'+cl.det+'</span></span> → '+fFull(cl.x))+
+    eqRow('y = Δy / Δ','<span class="fr"><span class="fn">'+dy+'</span><span class="fd">'+cl.det+'</span></span> → '+fFull(cl.y)));
+  return h;
+}
+
+/* ---------- Método: reducción ---------- */
+function genReduccion(s,cl){
+  var h=cardSistema(s);
+  var X=cl.x,Y=cl.y,paso=1;
+  if(s.a1===0||s.a2===0){ // una ecuación ya no tiene x
+    var conY=(s.a1===0)?{a:s.b1,c:s.c1,n:1}:{a:s.b2,c:s.c2,n:2};
+    var otra=(s.a1===0)?{a:s.a2,b:s.b2,c:s.c2,n:2}:{a:s.a1,b:s.b1,c:s.c1,n:1};
+    h+=stepCard(paso++,'La ecuación '+conY.n+' ya no contiene x: despejamos y directamente',
+      eqRow(T(conY.a,'y',true),''+conY.c)+eqRow('y',fFull(Y)));
+    h+=stepCard(paso++,'Sustituimos y en la ecuación '+otra.n+' para hallar x',
+      eqRow(T(otra.a,'x',true)+T(otra.b,'y'),''+otra.c)+
+      eqRow(T(otra.a,'x',true)+' + '+otra.b+'·(<span class="rojo">'+fPlain(Y)+'</span>)',''+otra.c)+
+      eqRow(T(otra.a,'x',true),fHTML(fSub(fr(otra.c),fMul(fr(otra.b),Y))))+
+      eqRow('x',fFull(X)));
+    return h;
+  }
+  var m1=s.a2,m2=-s.a1;
+  var n1={a:s.a1*m1,b:s.b1*m1,c:s.c1*m1},n2={a:s.a2*m2,b:s.b2*m2,c:s.c2*m2};
+  h+=stepCard(paso++,'Preparamos las ecuaciones para eliminar la x',
+    '<p style="margin:0 0 6px">Multiplicamos la <b class="e1c">Ecuación 1</b> por <b>('+m1+')</b> y la <b class="e2c">Ecuación 2</b> por <b>('+m2+')</b> para que los coeficientes de x queden opuestos:</p>'+
+    eqRow(T(n1.a,'x',true)+T(n1.b,'y'),''+n1.c,'ecu1')+
+    eqRow(T(n2.a,'x',true)+T(n2.b,'y'),''+n2.c,'ecu2'));
+  var cy=n1.b+n2.b, ci=n1.c+n2.c;
+  h+=stepCard(paso++,'Sumamos las dos ecuaciones: la x se elimina',
+    eqRow('('+n1.a+' '+(n2.a>=0?'+ '+n2.a:'− '+Math.abs(n2.a))+')x '+T(cy,'y'),''+ci)+
+    eqRow(T(cy,'y',true),''+ci)+
+    eqRow('y','<span class="fr"><span class="fn">'+ci+'</span><span class="fd">'+cy+'</span></span> → '+fFull(Y)));
+  var num=fSub(fr(s.c1),fMul(fr(s.b1),Y));
+  h+=stepCard(paso++,'Sustituimos y en la Ecuación 1 original para hallar x',
+    eqRow(T(s.a1,'x',true)+T(s.b1,'y'),''+s.c1)+
+    eqRow(T(s.a1,'x',true)+' '+(s.b1<0?'−':'+')+' '+Math.abs(s.b1)+'·(<span class="rojo">'+fPlain(Y)+'</span>)',''+s.c1)+
+    eqRow(T(s.a1,'x',true),fHTML(num))+
+    eqRow('x',fHTML(num)+' ÷ '+s.a1+' → '+fFull(X)));
+  return h;
+}
+
+/* ---------- Igualación y sustitución (despejan x; con espejo para y) ---------- */
+function genIgualacion(s,cl){
+  if(s.a1===0||s.a2===0) return espejoONota(s,cl,'igualacion');
+  var h=cardSistema(s);
+  var X=cl.x,Y=cl.y;
+  function bloqueDespeje(a,b,c,n){
+    return '<div class="minibox"><h5>Despejamos x en la Ecuación '+n+'</h5>'+
+      eqRow(T(a,'x',true)+T(b,'y'),''+c)+
+      eqRow(T(a,'x',true),''+c+T(-b,'y'))+
+      eqRow('x',despeje(c,b,a,'y'))+'</div>';
+  }
+  h+=stepCard(1,'Despejamos la misma incógnita (x) en las dos ecuaciones',
+    '<div class="twocol">'+bloqueDespeje(s.a1,s.b1,s.c1,1)+bloqueDespeje(s.a2,s.b2,s.c2,2)+'</div>');
+  h+=stepCard(2,'Igualamos las dos expresiones de x',
+    '<p style="margin:0 0 6px">Como x = x, los dos despejes son iguales:</p>'+
+    eqRow(despeje(s.c1,s.b1,s.a1,'y'),despeje(s.c2,s.b2,s.a2,'y')));
+  var D=cl.det, Ny=s.a1*s.c2-s.a2*s.c1;
+  h+=stepCard(3,'Resolvemos la ecuación y hallamos y',
+    '<p style="margin:0 0 6px">Multiplicamos en cruz y aplicamos ley de signos:</p>'+
+    eqRow(s.a2+'·('+s.c1+T(-s.b1,'y')+')',s.a1+'·('+s.c2+T(-s.b2,'y')+')')+
+    eqRow(T(s.a2*s.c1,'',true)+T(-s.a2*s.b1,'y'),T(s.a1*s.c2,'',true)+T(-s.a1*s.b2,'y'))+
+    '<p class="dim" style="margin:4px 0">Agrupamos las y a la izquierda y los números a la derecha (cambiando signos):</p>'+
+    eqRow(T(-s.a2*s.b1,'y',true)+T(s.a1*s.b2,'y'),T(s.a1*s.c2,'',true)+T(-s.a2*s.c1,''))+
+    eqRow(T(D,'y',true),''+Ny)+
+    eqRow('y','<span class="fr"><span class="fn">'+Ny+'</span><span class="fd">'+D+'</span></span> → '+fFull(Y)));
+  var num=fSub(fr(s.c1),fMul(fr(s.b1),Y));
+  h+=stepCard(4,'Sustituimos y en el despeje de x (Ecuación 1)',
+    eqRow('x',despeje(s.c1,s.b1,s.a1,'(<span class="rojo">'+fPlain(Y)+'</span>)'))+
+    eqRow('x','<span class="fr"><span class="fn">'+fPlain(num)+'</span><span class="fd">'+s.a1+'</span></span> → '+fFull(X)));
+  return h;
+}
+function genSustitucion(s,cl){
+  if(s.a1===0) return espejoONota(s,cl,'sustitucion');
+  var h=cardSistema(s);
+  var X=cl.x,Y=cl.y;
+  h+=stepCard(1,'Despejamos x en la Ecuación 1',
+    eqRow(T(s.a1,'x',true)+T(s.b1,'y'),''+s.c1)+
+    eqRow(T(s.a1,'x',true),''+s.c1+T(-s.b1,'y'))+
+    eqRow('x',despeje(s.c1,s.b1,s.a1,'y')));
+  h+=stepCard(2,'Sustituimos ese despeje en la Ecuación 2',
+    '<p style="margin:0 0 6px">Donde la Ecuación 2 dice «x», escribimos la expresión despejada:</p>'+
+    eqRow(s.a2+'·'+despeje(s.c1,s.b1,s.a1,'y')+T(s.b2,'y'),''+s.c2));
+  var D=cl.det, Ny=s.a1*s.c2-s.a2*s.c1;
+  var b3=(s.a1===1)?'':('<p class="dim" style="margin:4px 0">Multiplicamos toda la ecuación por '+s.a1+' para eliminar el denominador:</p>'+
+    eqRow(s.a2+'·('+s.c1+T(-s.b1,'y')+')'+T(s.a1*s.b2,'y'),(s.a1*s.c2)+''));
+  h+=stepCard(3,'Desarrollamos y hallamos y',
+    b3+
+    eqRow(T(s.a2*s.c1,'',true)+T(-s.a2*s.b1,'y')+T(s.a1*s.b2,'y'),''+(s.a1*s.c2))+
+    eqRow(T(-s.a2*s.b1,'y',true)+T(s.a1*s.b2,'y'),T(s.a1*s.c2,'',true)+T(-s.a2*s.c1,''))+
+    eqRow(T(D,'y',true),''+Ny)+
+    eqRow('y','<span class="fr"><span class="fn">'+Ny+'</span><span class="fd">'+D+'</span></span> → '+fFull(Y)));
+  var num=fSub(fr(s.c1),fMul(fr(s.b1),Y));
+  h+=stepCard(4,'Reemplazamos y en el despeje del Paso 1',
+    eqRow('x',despeje(s.c1,s.b1,s.a1,'(<span class="rojo">'+fPlain(Y)+'</span>)'))+
+    eqRow('x','<span class="fr"><span class="fn">'+fPlain(num)+'</span><span class="fd">'+s.a1+'</span></span> → '+fFull(X)));
+  return h;
+}
+/* Cuando no se puede despejar x (coeficiente 0): nota + resolvemos por reducción */
+function espejoONota(s,cl,met){
+  var h='<div class="step warn"><div class="sn">ℹ️</div><div class="sb"><h4>Nota</h4><p style="margin:4px 0;line-height:1.6">Con estos coeficientes no es práctico el método de '+(met==='igualacion'?'igualación':'sustitución')+' despejando x (hay un coeficiente igual a 0). Resolvemos por <b>reducción</b>, que funciona siempre:</p></div></div>';
+  return h+genReduccion(s,cl);
+}
+
+/* ---------- Construir solución completa ---------- */
+var METODOS={igualacion:'Igualación',sustitucion:'Sustitución',reduccion:'Reducción',determinantes:'Determinantes (Cramer)'};
+function construirSolucion(s,met){
+  var cl=clasificar(s);
+  var titulo='<div class="titlestep">📘 Resolución por el método de '+METODOS[met]+'</div>';
+  if(cl.tipo!=='unica') return {html:titulo+cardsDegenerado(s,cl),cl:cl};
+  var gen={igualacion:genIgualacion,sustitucion:genSustitucion,reduccion:genReduccion,determinantes:genDeterminantes}[met];
+  var h=titulo+gen(s,cl)+cardSolucion(cl.x,cl.y)+cardVerificacion(s,cl.x,cl.y);
+  return {html:h,cl:cl};
+}
+
+/* ---------- Gráfica en canvas ---------- */
+function cssv(name,fb){try{var v=getComputedStyle(document.body).getPropertyValue(name).trim();return v||fb;}catch(e){return fb;}}
+function drawSys(cv,s,cl){
+  var ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  var C={panel:cssv('--panel','#fff'),grid:cssv('--line','#e2e8f0'),axis:cssv('--muted','#64748b'),e1:cssv('--accent','#2563eb'),e2:cssv('--bad','#dc2626'),ok:cssv('--ok','#059669')};
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle=C.panel;ctx.fillRect(0,0,W,H);
+  var R=6;
+  if(cl&&cl.tipo==='unica'){R=Math.max(5,Math.abs(fVal(cl.x))*1.6,Math.abs(fVal(cl.y))*1.6);}
+  R=Math.ceil(R);
+  var step=1;[1,2,5,10,20,50,100].some(function(st){if(R/st<=8){step=st;return true;}return false;});
+  var sc=Math.min(W,H)/(2*R+step);
+  var ox=W/2,oy=H/2;
+  function px(x){return ox+x*sc;} function py(y){return oy-y*sc;}
+  // cuadricula
+  ctx.strokeStyle=C.grid;ctx.lineWidth=1;ctx.beginPath();
+  for(var gx=-Math.ceil(R/step)*step;gx<=R+step;gx+=step){ctx.moveTo(px(gx),0);ctx.lineTo(px(gx),H);}
+  for(var gy=-Math.ceil(R/step)*step;gy<=R+step;gy+=step){ctx.moveTo(0,py(gy));ctx.lineTo(W,py(gy));}
+  ctx.stroke();
+  // ejes
+  ctx.strokeStyle=C.axis;ctx.lineWidth=1.6;ctx.beginPath();
+  ctx.moveTo(0,oy);ctx.lineTo(W,oy);ctx.moveTo(ox,0);ctx.lineTo(ox,H);ctx.stroke();
+  ctx.fillStyle=C.axis;ctx.font='11px Segoe UI';
+  for(var tx=-Math.ceil(R/step)*step;tx<=R+step;tx+=step){if(tx!==0)ctx.fillText(tx,px(tx)+2,oy+13);}
+  for(var ty=-Math.ceil(R/step)*step;ty<=R+step;ty+=step){if(ty!==0)ctx.fillText(ty,ox+4,py(ty)-3);}
+  ctx.fillText('x',W-14,oy-6);ctx.fillText('y',ox+8,12);
+  // rectas
+  function linea(a,b,c,color){
+    ctx.strokeStyle=color;ctx.lineWidth=3;ctx.beginPath();
+    if(b!==0){
+      var xa=-(R+step),xb=R+step;
+      ctx.moveTo(px(xa),py((c-a*xa)/b));ctx.lineTo(px(xb),py((c-a*xb)/b));
+    }else if(a!==0){
+      var xv=c/a;ctx.moveTo(px(xv),0);ctx.lineTo(px(xv),H);
+    }
+    ctx.stroke();
+  }
+  linea(s.a1,s.b1,s.c1,C.e1);
+  linea(s.a2,s.b2,s.c2,C.e2);
+  // punto solución
+  if(cl&&cl.tipo==='unica'){
+    var sx=fVal(cl.x),sy=fVal(cl.y);
+    ctx.fillStyle=C.ok;ctx.beginPath();ctx.arc(px(sx),py(sy),7,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=C.panel;ctx.lineWidth=2;ctx.beginPath();ctx.arc(px(sx),py(sy),7,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle=C.ok;ctx.font='bold 13px Segoe UI';
+    var lab='('+fmtDec(sx)+' , '+fmtDec(sy)+')';
+    ctx.fillText(lab,Math.min(px(sx)+10,W-80),Math.max(py(sy)-10,14));
+  }
+}
+
+/* ---------- Resolutor (UI) ---------- */
+function leerSistema(){
+  function g(id){var v=parseFloat(document.getElementById(id).value);return isNaN(v)?null:v;}
+  var vals=['ia1','ib1','ic1','ia2','ib2','ic2'].map(g);
+  if(vals.some(function(v){return v===null;}))return null;
+  if(vals.some(function(v){return v!==Math.round(v);})){
+    // admitir decimales convirtiendo a enteros (x10, x100) para mantener fracciones exactas
+    var f=1;vals.forEach(function(v){var s2=(''+v).split('.')[1];if(s2)f=Math.max(f,Math.pow(10,s2.length));});
+    if(f<=1000)vals=vals.map(function(v){return Math.round(v*f);});
+    else vals=vals.map(function(v){return Math.round(v);});
+  }
+  return {a1:vals[0],b1:vals[1],c1:vals[2],a2:vals[3],b2:vals[4],c2:vals[5]};
+}
+function resolver(met){
+  var s=leerSistema();
+  var out=document.getElementById('r-out');
+  if(!s){out.innerHTML='<div class="step warn"><div class="sn">⚠️</div><div class="sb"><h4>Faltan datos</h4><p style="margin:4px 0">Completa los seis coeficientes del sistema.</p></div></div>';return;}
+  if((s.a1===0&&s.b1===0)||(s.a2===0&&s.b2===0)){out.innerHTML='<div class="step warn"><div class="sn">⚠️</div><div class="sb"><h4>Sistema no válido</h4><p style="margin:4px 0">Una ecuación tiene sus dos coeficientes en 0: no es una ecuación con incógnitas.</p></div></div>';return;}
+  var r=construirSolucion(s,met);
+  out.innerHTML=r.html;
+  var gw=document.getElementById('r-graphwrap');gw.style.display='block';
+  drawSys(document.getElementById('r-graph'),s,r.cl);
+  out.scrollIntoView({behavior:'smooth',block:'start'});
+}
+var EJEMPLOS=[[3,-4,-6,2,4,16],[2,1,4,4,2,10],[1,2,4,2,4,8]];
+function ejemploR(i){
+  var e=EJEMPLOS[i],ids=['ia1','ib1','ic1','ia2','ib2','ic2'];
+  ids.forEach(function(id,k){document.getElementById(id).value=e[k];});
+  resolver(i===0?'reduccion':'determinantes');
+}
+function sistemaAleatorio(){
+  function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+  var x,y,a1,b1,a2,b2;
+  do{
+    x=ri(-6,8);y=ri(-6,8);
+    a1=ri(-5,5)||1;b1=ri(-5,5)||1;a2=ri(-5,5)||1;b2=ri(-5,5)||1;
+  }while(a1*b2-a2*b1===0||(x===0&&y===0));
+  var c1=a1*x+b1*y,c2=a2*x+b2*y;
+  [['ia1',a1],['ib1',b1],['ic1',c1],['ia2',a2],['ib2',b2],['ic2',c2]].forEach(function(p){document.getElementById(p[0]).value=p[1];});
+  document.getElementById('r-out').innerHTML='<div class="callout">🎲 Sistema aleatorio generado. Elige un método para resolverlo.</div>';
+  document.getElementById('r-graphwrap').style.display='none';
+}
+function generarPDFResolutor(){
+  var s=leerSistema();
+  var out=document.getElementById('r-out');
+  if(!s){out.innerHTML='<div class="step warn"><div class="sn">⚠️</div><div class="sb"><h4>Faltan datos</h4><p style="margin:4px 0">Completa los seis coeficientes del sistema.</p></div></div>';return;}
+  if((s.a1===0&&s.b1===0)||(s.a2===0&&s.b2===0)){out.innerHTML='<div class="step warn"><div class="sn">⚠️</div><div class="sb"><h4>Sistema no válido</h4><p style="margin:4px 0">Una ecuación tiene sus dos coeficientes en 0: no es una ecuación con incógnitas.</p></div></div>';return;}
+  var cl=clasificar(s),html='';
+  Object.keys(METODOS).forEach(function(met){
+    var r=construirSolucion(s,met);
+    html+='<div class="pdf-method-block">'+r.html+'</div>';
+  });
+  out.innerHTML=html;
+  var gw=document.getElementById('r-graphwrap');gw.style.display='block';
+  drawSys(document.getElementById('r-graph'),s,cl);
+  out.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(function(){window.print();},200);
+}
+</script>
+<script>
+var BANK=[
+/* ---------- FÁCIL (f1–f20) ---------- */
+{id:'f1', lvl:'f',a1:1,b1:1,c1:3, a2:1,b2:-1,c2:1, ax:2,ay:1, m:'igualacion'},
+{id:'f2', lvl:'f',a1:1,b1:1,c1:5, a2:1,b2:-1,c2:1, ax:3,ay:2, m:'sustitucion'},
+{id:'f3', lvl:'f',a1:1,b1:1,c1:5, a2:2,b2:1,c2:9, ax:4,ay:1, m:'reduccion'},
+{id:'f4', lvl:'f',a1:1,b1:2,c1:8, a2:1,b2:1,c2:5, ax:2,ay:3, m:'determinantes'},
+{id:'f5', lvl:'f',a1:2,b1:1,c1:6, a2:1,b2:1,c2:5, ax:1,ay:4, m:'igualacion'},
+{id:'f6', lvl:'f',a1:1,b1:1,c1:7, a2:1,b2:-1,c2:3, ax:5,ay:2, m:'sustitucion'},
+{id:'f7', lvl:'f',a1:2,b1:1,c1:7, a2:1,b2:2,c2:5, ax:3,ay:1, m:'reduccion'},
+{id:'f8', lvl:'f',a1:3,b1:1,c1:8, a2:1,b2:1,c2:4, ax:2,ay:2, m:'determinantes'},
+{id:'f9', lvl:'f',a1:1,b1:1,c1:7, a2:2,b2:-1,c2:5, ax:4,ay:3, m:'igualacion'},
+{id:'f10',lvl:'f',a1:1,b1:1,c1:8, a2:1,b2:-2,c2:2, ax:6,ay:2, m:'sustitucion'},
+{id:'f11',lvl:'f',a1:2,b1:3,c1:5, a2:1,b2:1,c2:2, ax:1,ay:1, m:'reduccion'},
+{id:'f12',lvl:'f',a1:1,b1:-1,c1:2, a2:1,b2:1,c2:8, ax:5,ay:3, m:'determinantes'},
+{id:'f13',lvl:'f',a1:2,b1:1,c1:8, a2:1,b2:3,c2:14, ax:2,ay:4, m:'igualacion'},
+{id:'f14',lvl:'f',a1:2,b1:1,c1:9, a2:1,b2:2,c2:9, ax:3,ay:3, m:'sustitucion'},
+{id:'f15',lvl:'f',a1:1,b1:1,c1:9, a2:1,b2:-1,c2:5, ax:7,ay:2, m:'reduccion'},
+{id:'f16',lvl:'f',t:'Quesos y suero',
+ st:'Doña Inés vende quesos y bolsas de suero en la vereda. Dos quesos y tres bolsas de suero cuestan $19.000, mientras que un queso y una bolsa de suero cuestan $8.000. ¿Cuánto cuesta cada queso y cada bolsa de suero?',
+ px:'precio de un queso (miles de pesos)',py:'precio de una bolsa de suero (miles de pesos)',
+ e1d:'dos quesos y tres sueros cuestan $19 mil',e2d:'un queso y un suero cuestan $8 mil',
+ note:'Trabajamos en miles de pesos para usar números pequeños: $19.000 → 19 y $8.000 → 8.',
+ a1:2,b1:3,c1:19, a2:1,b2:1,c2:8, ax:5,ay:3, m:'determinantes'},
+{id:'f17',lvl:'f',t:'La tienda de la vereda',
+ st:'En la tienda de la vereda, una panela y una libra de arroz cuestan juntas $6.000. La panela cuesta $2.000 más que la libra de arroz. ¿Cuánto cuesta cada producto?',
+ px:'precio de la panela (miles de pesos)',py:'precio de la libra de arroz (miles de pesos)',
+ e1d:'juntas cuestan $6 mil',e2d:'la panela cuesta $2 mil más que el arroz',
+ a1:1,b1:1,c1:6, a2:1,b2:-1,c2:2, ax:4,ay:2, m:'sustitucion'},
+{id:'f18',lvl:'f',t:'Mangos y guayabas',
+ st:'Camilo recogió 8 frutas entre mangos y guayabas. Los mangos superan a las guayabas en 2. ¿Cuántas frutas de cada tipo recogió?',
+ px:'número de mangos',py:'número de guayabas',
+ e1d:'en total hay 8 frutas',e2d:'hay 2 mangos más que guayabas',
+ a1:1,b1:1,c1:8, a2:1,b2:-1,c2:2, ax:5,ay:3, m:'reduccion'},
+{id:'f19',lvl:'f',t:'Pollitos y patitos',
+ st:'En el corral hay pollitos y patitos: 12 animalitos en total. Hay el doble de pollitos que de patitos. ¿Cuántos hay de cada uno?',
+ px:'número de pollitos',py:'número de patitos',
+ e1d:'los pollitos son el doble de los patitos: x = 2y, es decir x − 2y = 0',e2d:'en total hay 12 animalitos',
+ a1:1,b1:-2,c1:0, a2:1,b2:1,c2:12, ax:8,ay:4, m:'sustitucion'},
+{id:'f20',lvl:'f',t:'Conejos y gallinas',
+ st:'En el corral de la abuela hay conejos y gallinas. Se cuentan 10 cabezas y 28 patas. ¿Cuántos conejos y cuántas gallinas hay?',
+ px:'número de conejos (4 patas)',py:'número de gallinas (2 patas)',
+ e1d:'patas: 4x + 2y = 28; simplificamos dividiendo entre 2 → 2x + y = 14',e2d:'cabezas: hay 10 animales',
+ a1:2,b1:1,c1:14, a2:1,b2:1,c2:10, ax:4,ay:6, m:'reduccion'},
+/* ---------- MEDIO (m1–m20) ---------- */
+{id:'m1', lvl:'m',a1:2,b1:3,c1:12, a2:4,b2:-1,c2:10, ax:3,ay:2, m:'igualacion'},
+{id:'m2', lvl:'m',a1:3,b1:-2,c1:4, a2:5,b2:4,c2:14, ax:2,ay:1, m:'sustitucion'},
+{id:'m3', lvl:'m',a1:4,b1:5,c1:7, a2:2,b2:-3,c2:9, ax:3,ay:-1, m:'reduccion'},
+{id:'m4', lvl:'m',a1:-2,b1:1,c1:5, a2:3,b2:2,c2:3, ax:-1,ay:3, m:'determinantes'},
+{id:'m5', lvl:'m',a1:5,b1:-2,c1:16, a2:3,b2:1,c2:14, ax:4,ay:2, m:'igualacion'},
+{id:'m6', lvl:'m',a1:7,b1:2,c1:10, a2:3,b2:-4,c2:14, ax:2,ay:-2, m:'sustitucion'},
+{id:'m7', lvl:'m',a1:2,b1:-5,c1:-16, a2:3,b2:2,c2:14, ax:2,ay:4, m:'reduccion'},
+{id:'m8', lvl:'m',a1:6,b1:1,c1:-4, a2:2,b2:-3,c2:12, ax:0,ay:-4, m:'determinantes'},
+{id:'m9', lvl:'m',a1:2,b1:4,c1:7, a2:1,b2:-2,c2:1, ax:2.25,ay:0.625, m:'reduccion'},
+{id:'m10',lvl:'m',a1:3,b1:4,c1:-1, a2:-2,b2:3,c2:12, ax:-3,ay:2, m:'determinantes'},
+{id:'m11',lvl:'m',t:'Yuca y papa en la galería',
+ st:'En la galería del pueblo, 2 kilos de yuca y 3 kilos de papa cuestan $13.000, mientras que 4 kilos de yuca y 1 kilo de papa cuestan $11.000. ¿Cuánto vale el kilo de cada una?',
+ px:'precio del kilo de yuca (miles de pesos)',py:'precio del kilo de papa (miles de pesos)',
+ e1d:'primera compra: 2 kilos de yuca y 3 de papa por $13 mil',e2d:'segunda compra: 4 kilos de yuca y 1 de papa por $11 mil',
+ note:'Trabajamos en miles de pesos: $13.000 → 13 y $11.000 → 11.',
+ a1:2,b1:3,c1:13, a2:4,b2:1,c2:11, ax:2,ay:3, m:'reduccion'},
+{id:'m12',lvl:'m',t:'Machetes y limas',
+ st:'Don Aníbal compró 3 machetes y 2 limas por $41.000. Su vecino compró 1 machete y 4 limas por $27.000. ¿Cuál es el precio de cada herramienta?',
+ px:'precio de un machete (miles de pesos)',py:'precio de una lima (miles de pesos)',
+ e1d:'compra de don Aníbal: $41 mil',e2d:'compra del vecino: $27 mil',
+ a1:3,b1:2,c1:41, a2:1,b2:4,c2:27, ax:11,ay:4, m:'sustitucion'},
+{id:'m13',lvl:'m',t:'Edades en la finca',
+ st:'Las edades de don Pedro y su hijo suman 50 años. La edad de don Pedro es 10 años más que el triple de la edad del hijo. ¿Qué edad tiene cada uno?',
+ px:'edad de don Pedro',py:'edad del hijo',
+ e1d:'las edades suman 50',e2d:'x = 3y + 10, es decir x − 3y = 10',
+ a1:1,b1:1,c1:50, a2:1,b2:-3,c2:10, ax:40,ay:10, m:'sustitucion'},
+{id:'m14',lvl:'m',t:'Abono y cal',
+ st:'En el depósito, 2 bultos de abono y 3 bultos de cal pesan 190 kg, mientras que 1 bulto de abono y 2 de cal pesan 110 kg. ¿Cuánto pesa cada bulto?',
+ px:'peso de un bulto de abono (kg)',py:'peso de un bulto de cal (kg)',
+ e1d:'2 de abono + 3 de cal pesan 190 kg',e2d:'1 de abono + 2 de cal pesan 110 kg',
+ a1:2,b1:3,c1:190, a2:1,b2:2,c2:110, ax:50,ay:30, m:'reduccion'},
+{id:'m15',lvl:'m',t:'Tintos y empanadas',
+ st:'En la cafetería del pueblo, 4 tintos y 2 empanadas cuestan $10.000; 2 tintos y 3 empanadas cuestan $11.000. ¿Cuánto cuesta cada tinto y cada empanada?',
+ px:'precio de un tinto (miles de pesos)',py:'precio de una empanada (miles de pesos)',
+ e1d:'4 tintos y 2 empanadas: $10 mil',e2d:'2 tintos y 3 empanadas: $11 mil',
+ a1:4,b1:2,c1:10, a2:2,b2:3,c2:11, ax:1,ay:3, m:'reduccion'},
+{id:'m16',lvl:'m',t:'Gallinas y pavos al mercado',
+ st:'Doña Rosa vendió 14 aves entre gallinas y pavos. La gallina se vende a $25.000 y el pavo a $60.000, y recaudó en total $455.000. ¿Cuántas aves de cada tipo vendió?',
+ px:'número de gallinas',py:'número de pavos',
+ e1d:'total de aves: 14',e2d:'dinero: 25x + 60y = 455 (en miles); dividimos entre 5 → 5x + 12y = 91',
+ note:'La ecuación del dinero se simplifica dividiendo todo entre $5.000.',
+ a1:1,b1:1,c1:14, a2:5,b2:12,c2:91, ax:11,ay:3, m:'sustitucion'},
+{id:'m17',lvl:'m',t:'Dos galpones',
+ st:'Entre los galpones A y B se recogen 42 huevos diarios. El galpón A produce 3 huevos menos que el doble del galpón B. ¿Cuántos huevos produce cada galpón?',
+ px:'huevos diarios del galpón A',py:'huevos diarios del galpón B',
+ e1d:'entre los dos: 42 huevos',e2d:'x = 2y − 3, es decir x − 2y = −3',
+ a1:1,b1:1,c1:42, a2:1,b2:-2,c2:-3, ax:27,ay:15, m:'igualacion'},
+{id:'m18',lvl:'m',t:'Cocos y mangos',
+ st:'En el puesto de frutas, 3 cocos y 5 mangos cuestan $11.000, mientras que 5 cocos y 2 mangos cuestan $12.000. ¿Cuánto cuesta cada fruta?',
+ px:'precio de un coco (miles de pesos)',py:'precio de un mango (miles de pesos)',
+ e1d:'3 cocos y 5 mangos: $11 mil',e2d:'5 cocos y 2 mangos: $12 mil',
+ a1:3,b1:5,c1:11, a2:5,b2:2,c2:12, ax:2,ay:1, m:'determinantes'},
+{id:'m19',lvl:'m',t:'Naranjos y limoneros',
+ st:'En la vereda se sembraron 26 árboles frutales entre naranjos y limoneros. Los naranjos superan a los limoneros en 6. ¿Cuántos árboles de cada tipo se sembraron?',
+ px:'número de naranjos',py:'número de limoneros',
+ e1d:'en total: 26 árboles',e2d:'hay 6 naranjos más que limoneros',
+ a1:1,b1:1,c1:26, a2:1,b2:-1,c2:6, ax:16,ay:10, m:'reduccion'},
+{id:'m20',lvl:'m',t:'Cosecha de arroz',
+ st:'Entre dos parcelas se recogieron 95 bultos de arroz. La parcela grande produjo 5 bultos más que el doble de la pequeña. ¿Cuántos bultos produjo cada parcela?',
+ px:'bultos de la parcela grande',py:'bultos de la parcela pequeña',
+ e1d:'entre las dos: 95 bultos',e2d:'x = 2y + 5, es decir x − 2y = 5',
+ a1:1,b1:1,c1:95, a2:1,b2:-2,c2:5, ax:65,ay:30, m:'sustitucion'},
+/* ---------- DIFÍCIL (d1–d20): problemas del campo ---------- */
+{id:'d1',lvl:'d',t:'Gallinas y cerdos',
+ st:'En el patio de la finca de don José hay gallinas y cerdos. En total se cuentan 25 cabezas y 64 patas. ¿Cuántas gallinas y cuántos cerdos hay?',
+ px:'número de gallinas (2 patas)',py:'número de cerdos (4 patas)',
+ e1d:'cabezas: cada animal tiene una, x + y = 25',e2d:'patas: 2x + 4y = 64',
+ a1:1,b1:1,c1:25, a2:2,b2:4,c2:64, ax:18,ay:7, m:'reduccion'},
+{id:'d2',lvl:'d',t:'Bultos de maíz y yuca',
+ st:'Un camión lleva 12 bultos entre maíz y yuca, con un peso total de 680 kg. Cada bulto de maíz pesa 50 kg y cada bulto de yuca pesa 70 kg. ¿Cuántos bultos hay de cada producto?',
+ px:'bultos de maíz',py:'bultos de yuca',
+ e1d:'cantidad: x + y = 12',e2d:'peso: 50x + 70y = 680',
+ a1:1,b1:1,c1:12, a2:50,b2:70,c2:680, ax:8,ay:4, m:'sustitucion'},
+{id:'d3',lvl:'d',t:'Recolectores de café',
+ st:'En la finca cafetera trabajan 9 recolectores entre expertos y aprendices. Un experto recoge 7 arrobas al día y un aprendiz 4 arrobas. Si en un día recogieron 51 arrobas, ¿cuántos expertos y cuántos aprendices hay?',
+ px:'número de recolectores expertos',py:'número de aprendices',
+ e1d:'personas: x + y = 9',e2d:'arrobas del día: 7x + 4y = 51',
+ a1:1,b1:1,c1:9, a2:7,b2:4,c2:51, ax:5,ay:4, m:'reduccion'},
+{id:'d4',lvl:'d',t:'Leche y queso',
+ st:'Doña Carmen vendió 20 productos entre litros de leche y quesos. El litro de leche lo vende a $2.000 y el queso a $8.000. Si recaudó $70.000, ¿cuántos litros de leche y cuántos quesos vendió?',
+ px:'litros de leche vendidos',py:'quesos vendidos',
+ e1d:'productos: x + y = 20',e2d:'dinero en miles: 2x + 8y = 70',
+ note:'Trabajamos en miles de pesos: $2.000 → 2, $8.000 → 8, $70.000 → 70.',
+ a1:1,b1:1,c1:20, a2:2,b2:8,c2:70, ax:15,ay:5, m:'sustitucion'},
+{id:'d5',lvl:'d',t:'Huevos criollos y de granja',
+ st:'María vende huevos en el mercado campesino: el huevo criollo a $600 y el de granja a $400. Vendió 25 huevos y recaudó $12.200. ¿Cuántos huevos de cada tipo vendió?',
+ px:'huevos criollos',py:'huevos de granja',
+ e1d:'huevos: x + y = 25',e2d:'dinero en cientos de pesos: 6x + 4y = 122',
+ note:'Trabajamos en cientos de pesos: $600 → 6, $400 → 4, $12.200 → 122.',
+ a1:1,b1:1,c1:25, a2:6,b2:4,c2:122, ax:11,ay:14, m:'sustitucion'},
+{id:'d6',lvl:'d',t:'Plátano y ñame',
+ st:'En la plaza, el kilo de plátano cuesta $2.000 y el kilo de ñame $3.000. Doña Elsa compró 10 kilos en total y pagó $23.000. ¿Cuántos kilos compró de cada uno?',
+ px:'kilos de plátano',py:'kilos de ñame',
+ e1d:'kilos: x + y = 10',e2d:'dinero en miles: 2x + 3y = 23',
+ note:'Trabajamos en miles de pesos: $23.000 → 23.',
+ a1:1,b1:1,c1:10, a2:2,b2:3,c2:23, ax:7,ay:3, m:'reduccion'},
+{id:'d7',lvl:'d',t:'Vacunación del ganado',
+ st:'El veterinario vacunó 24 animales entre vacas y terneros, usando 100 ml de vacuna. A cada vaca le aplicó 5 ml y a cada ternero 3 ml. ¿Cuántas vacas y cuántos terneros vacunó?',
+ px:'número de vacas',py:'número de terneros',
+ e1d:'animales: x + y = 24',e2d:'vacuna: 5x + 3y = 100',
+ a1:1,b1:1,c1:24, a2:5,b2:3,c2:100, ax:14,ay:10, m:'igualacion'},
+{id:'d8',lvl:'d',t:'El mototaxista',
+ st:'Un mototaxista cobra $3.000 la carrera corta (dentro del pueblo) y $5.000 la carrera larga (a las veredas). En un día hizo 32 carreras y recaudó $124.000. ¿Cuántas carreras de cada tipo hizo?',
+ px:'carreras cortas',py:'carreras largas',
+ e1d:'carreras: x + y = 32',e2d:'dinero en miles: 3x + 5y = 124',
+ note:'Trabajamos en miles de pesos: $124.000 → 124.',
+ a1:1,b1:1,c1:32, a2:3,b2:5,c2:124, ax:18,ay:14, m:'reduccion'},
+{id:'d9',lvl:'d',t:'Semillas de arroz y frijol',
+ st:'Un agricultor va a sembrar 15 hectáreas entre arroz y frijol. Cada hectárea de arroz necesita 3 bultos de semilla y cada hectárea de frijol necesita 2 bultos. Si compró 38 bultos, ¿cuántas hectáreas sembrará de cada cultivo?',
+ px:'hectáreas de arroz',py:'hectáreas de frijol',
+ e1d:'hectáreas: x + y = 15',e2d:'semilla: 3x + 2y = 38',
+ a1:1,b1:1,c1:15, a2:3,b2:2,c2:38, ax:8,ay:7, m:'determinantes'},
+{id:'d10',lvl:'d',t:'Postes para los potreros',
+ st:'Para cercar dos potreros se usaron 45 postes en total. El potrero grande usó 3 postes más que el doble de los que usó el pequeño. ¿Cuántos postes usó cada potrero?',
+ px:'postes del potrero grande',py:'postes del potrero pequeño',
+ e1d:'total: x + y = 45',e2d:'x = 2y + 3, es decir x − 2y = 3',
+ a1:1,b1:1,c1:45, a2:1,b2:-2,c2:3, ax:31,ay:14, m:'sustitucion'},
+{id:'d11',lvl:'d',t:'Jornales de trabajo',
+ st:'En la finca se pagaron 8 jornales entre trabajo con machete y trabajo con motosierra. El jornal con machete se paga a $40.000 y con motosierra a $70.000. Si se pagaron $410.000 en total, ¿cuántos jornales hubo de cada tipo?',
+ px:'jornales con machete',py:'jornales con motosierra',
+ e1d:'jornales: x + y = 8',e2d:'pago en decenas de miles: 4x + 7y = 41',
+ note:'Trabajamos en decenas de miles: $40.000 → 4, $70.000 → 7, $410.000 → 41.',
+ a1:1,b1:1,c1:8, a2:4,b2:7,c2:41, ax:5,ay:3, m:'sustitucion'},
+{id:'d12',lvl:'d',t:'Cajas de panela',
+ st:'El trapiche empacó 15 cajas de panela entre grandes y pequeñas. La caja grande trae 24 panelas y la pequeña 12. Si en total se empacaron 288 panelas, ¿cuántas cajas de cada tamaño hay?',
+ px:'cajas grandes',py:'cajas pequeñas',
+ e1d:'cajas: x + y = 15',e2d:'panelas: 24x + 12y = 288 (se puede simplificar entre 12: 2x + y = 24)',
+ a1:1,b1:1,c1:15, a2:24,b2:12,c2:288, ax:9,ay:6, m:'sustitucion'},
+{id:'d13',lvl:'d',t:'Pesca del día',
+ st:'Un pescador vendió 14 kilos de pescado entre bocachico y tilapia. El kilo de bocachico está a $8.000 y el de tilapia a $6.000. Si recibió $100.000, ¿cuántos kilos vendió de cada pescado?',
+ px:'kilos de bocachico',py:'kilos de tilapia',
+ e1d:'kilos: x + y = 14',e2d:'dinero en miles: 8x + 6y = 100',
+ note:'Trabajamos en miles de pesos: $100.000 → 100.',
+ a1:1,b1:1,c1:14, a2:8,b2:6,c2:100, ax:8,ay:6, m:'determinantes'},
+{id:'d14',lvl:'d',t:'Maíz y ajonjolí',
+ st:'Don Ramón sembró 3 hectáreas más de maíz que de ajonjolí. La ganancia fue de 2 millones por hectárea de maíz y 3 millones por hectárea de ajonjolí, para un total de 26 millones. ¿Cuántas hectáreas sembró de cada cultivo?',
+ px:'hectáreas de maíz',py:'hectáreas de ajonjolí',
+ e1d:'diferencia: x − y = 3',e2d:'ganancia en millones: 2x + 3y = 26',
+ a1:1,b1:-1,c1:3, a2:2,b2:3,c2:26, ax:7,ay:4, m:'sustitucion'},
+{id:'d15',lvl:'d',t:'Alimento para el galpón',
+ st:'Para el galpón se compraron 12 bultos entre concentrado y maíz. El bulto de concentrado cuesta $90.000 y el de maíz $60.000. Si la compra fue de $960.000, ¿cuántos bultos se compraron de cada uno?',
+ px:'bultos de concentrado',py:'bultos de maíz',
+ e1d:'bultos: x + y = 12',e2d:'dinero en decenas de miles: 9x + 6y = 96',
+ note:'Trabajamos en decenas de miles: $90.000 → 9, $60.000 → 6, $960.000 → 96.',
+ a1:1,b1:1,c1:12, a2:9,b2:6,c2:96, ax:8,ay:4, m:'sustitucion'},
+{id:'d16',lvl:'d',t:'Cajas de guayaba y mango',
+ st:'Al mercado llegaron 20 cajas de fruta entre guayaba y mango, con un peso total de 294 kg. La caja de guayaba pesa 12 kg y la de mango 18 kg. ¿Cuántas cajas hay de cada fruta?',
+ px:'cajas de guayaba',py:'cajas de mango',
+ e1d:'cajas: x + y = 20',e2d:'peso: 12x + 18y = 294',
+ a1:1,b1:1,c1:20, a2:12,b2:18,c2:294, ax:11,ay:9, m:'sustitucion'},
+{id:'d17',lvl:'d',t:'La cosecha de miel',
+ st:'Un apicultor envasó 12 litros de miel en 18 botellas: unas de 750 ml y otras de 500 ml. ¿Cuántas botellas llenó de cada tamaño?',
+ px:'botellas de 750 ml',py:'botellas de 500 ml',
+ e1d:'botellas: x + y = 18',e2d:'miel en vasos de 250 ml: 3x + 2y = 48',
+ note:'Medimos en vasos de 250 ml: 750 ml → 3, 500 ml → 2 y 12 litros (12.000 ml) → 48.',
+ a1:1,b1:1,c1:18, a2:3,b2:2,c2:48, ax:12,ay:6, m:'reduccion'},
+{id:'d18',lvl:'d',t:'Camión y mula',
+ st:'Para sacar la cosecha se hicieron 9 viajes entre el camión y la mula, transportando 114 bultos. En cada viaje el camión lleva 30 bultos y la mula 4. ¿Cuántos viajes hizo cada uno?',
+ px:'viajes del camión',py:'viajes de la mula',
+ e1d:'viajes: x + y = 9',e2d:'bultos: 30x + 4y = 114',
+ a1:1,b1:1,c1:9, a2:30,b2:4,c2:114, ax:3,ay:6, m:'sustitucion'},
+{id:'d19',lvl:'d',t:'La tienda veredal',
+ st:'El sábado la tienda de la vereda vendió 25 bebidas entre gaseosas y bolsas de agua. Se sabe que por cada 2 gaseosas se vendieron 3 aguas. ¿Cuántas bebidas de cada tipo se vendieron?',
+ px:'gaseosas vendidas',py:'bolsas de agua vendidas',
+ e1d:'bebidas: x + y = 25',e2d:'proporción 2 a 3: x/y = 2/3, multiplicando en cruz 3x = 2y, es decir 3x − 2y = 0',
+ a1:1,b1:1,c1:25, a2:3,b2:-2,c2:0, ax:10,ay:15, m:'sustitucion'},
+{id:'d20',lvl:'d',t:'Repartir la parcela',
+ st:'Don Pedro reparte su parcela de 24 hectáreas entre pasto para el ganado y cultivo. El pasto ocupa el triple del área del cultivo. ¿Cuántas hectáreas dedica a cada uso?',
+ px:'hectáreas de pasto',py:'hectáreas de cultivo',
+ e1d:'total de tierra: x + y = 24',e2d:'el pasto es el triple: x = 3y, es decir x − 3y = 0',
+ a1:1,b1:1,c1:24, a2:1,b2:-3,c2:0, ax:18,ay:6, m:'igualacion'}
+];
+
+/* Autoverificación del banco (consola) */
+(function(){
+  var bad=0;
+  BANK.forEach(function(e){
+    var det=e.a1*e.b2-e.a2*e.b1;
+    var ok1=Math.abs(e.a1*e.ax+e.b1*e.ay-e.c1)<1e-6;
+    var ok2=Math.abs(e.a2*e.ax+e.b2*e.ay-e.c2)<1e-6;
+    if(det===0||!ok1||!ok2){bad++;console.warn('BANK ERROR en '+e.id,e);}
+  });
+  console.log('BANK: '+BANK.length+' ejercicios verificados, '+bad+' con error.');
+})();
+
+
+/* ================================================================
+   Integridad de la firma del autor (no borrar/editar)
+   ================================================================ */
+var _z=[80,114,111,102,46,32,72,233,99,116,111,114,32,72,111,121,111,115];
+function _dz(a){var s='';for(var i=0;i<a.length;i++){s+=String.fromCharCode(a[i]);}return s;}
+function _fp(str){var h1=0xdeadbeef,h2=0x41c6ce57,i,ch;for(i=0;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507);h2^=Math.imul(h1^(h1>>>13),3266489909);return (4294967296*(2097151&h2)+(h1>>>0)).toString(36);}
+var _NM=_dz(_z);
+var _SG='1rswb0nf7aj';
+function _intact(){
+  if(_fp(_NM)!==_SG)return false;
+  var c=document.getElementById('cred');
+  if(!c||_fp((c.textContent||'').trim())!==_SG)return false;
+  return true;
+}
+function _renderCred(){
+  var a=document.getElementById('cred'),b=document.getElementById('cred2');
+  if(a)a.textContent=_NM; if(b)b.textContent=_NM;
+}
+function _lock(){
+  try{document.title='Aplicación alterada';}catch(e){}
+  document.body.innerHTML='<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0f151d;color:#e5eaf1;font-family:Segoe UI,system-ui,sans-serif;text-align:center;padding:24px;z-index:999999"><div style="max-width:470px"><div style="font-size:3rem;margin-bottom:14px">🔒</div><h1 style="font-size:1.35rem;margin:0 0 12px">Aplicación bloqueada</h1><p style="color:#a9b4c2;line-height:1.65;font-size:.95rem">Se detectó una modificación o eliminación de la firma del autor (<b>'+_NM+'</b>) en el código de la aplicación. Restaura el archivo original para volver a utilizarla.</p></div></div>';
+}
+function _guard(){ if(!_intact()){_lock();return false;} return true; }
+
+/* ================================================================
+   Navegación
+   ================================================================ */
+function showSection(id){
+  if(!_guard())return;
+  document.querySelectorAll('section.pane').forEach(function(s){s.classList.remove('on');});
+  var sec=document.getElementById('sec-'+id); if(sec)sec.classList.add('on');
+  document.querySelectorAll('#nav button').forEach(function(b){b.classList.toggle('active',b.dataset.sec===id);});
+  var main=document.querySelector('main'); if(main)main.scrollTop=0;
+}
+function go(id){showSection(id);}
+
+/* ================================================================
+   Tema claro / oscuro
+   ================================================================ */
+var _lastMet=null;
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  document.body.setAttribute('data-theme',t);
+  var btn=document.getElementById('themeBtn'); if(btn)btn.textContent=(t==='dark')?'☀️':'🌙';
+  try{localStorage.setItem('ec2x2-theme',t);}catch(e){}
+  if(_lastMet&&document.getElementById('sec-resolutor').classList.contains('on')){try{resolver(_lastMet);}catch(e){}}
+}
+function toggleTheme(){
+  var cur=document.body.getAttribute('data-theme')||'light';
+  applyTheme(cur==='dark'?'light':'dark');
+}
+
+/* ================================================================
+   Ejercicios (UI)
+   ================================================================ */
+var LVL={
+  f:{name:'Fácil',color:'var(--lf)',desc:'<b>Nivel Fácil:</b> sistemas con números pequeños y soluciones enteras, más algunos problemas del campo. Intenta resolver en el cuaderno antes de verificar.'},
+  m:{name:'Medio',color:'var(--lm)',desc:'<b>Nivel Medio:</b> coeficientes negativos o mayores, soluciones negativas o fraccionarias, y problemas de compras, edades y cosechas.'},
+  d:{name:'Difícil',color:'var(--ld)',desc:'<b>Nivel Difícil:</b> problemas contextualizados de la vida rural. Define las incógnitas, plantea las dos ecuaciones y resuelve. Usa «Ver planteamiento» si necesitas ayuda.'}
+};
+var curLvl='f',curIdx=0,revelado={};
+function prog(){try{return JSON.parse(localStorage.getItem('ec2x2v3')||'{}');}catch(e){return{};}}
+function saveProg(p){try{localStorage.setItem('ec2x2v3',JSON.stringify(p));}catch(e){}}
+function lvlList(l){return BANK.filter(function(e){return e.lvl===l;});}
+function miniSys(e){var e1=eqLR(e.a1,e.b1,e.c1,'x','y'),e2=eqLR(e.a2,e.b2,e.c2,'x','y');return e1.L+' = '+e1.R+'<br>'+e2.L+' = '+e2.R;}
+function setLevel(l){
+  curLvl=l;
+  document.querySelectorAll('.lvltab').forEach(function(b){b.classList.toggle('on',b.dataset.lvl===l);});
+  document.getElementById('lvl-desc').innerHTML=LVL[l].desc;
+  var p=prog(),list=lvlList(l),grid=document.getElementById('exgrid'),html='';
+  list.forEach(function(e,i){
+    var st=p[e.id],cls=st===2?'done':(st===1?'seen':''),ico=st===2?'✅':(st===1?'👀':'');
+    html+='<button class="excard '+cls+'" style="--lvc:'+LVL[l].color+'" onclick="openEx('+i+')">'+
+      '<span class="n">'+LVL[l].name+' '+(i+1)+'</span><span class="st">'+ico+'</span>'+
+      '<span class="tt">'+(e.t||'Sistema '+(i+1))+'</span>'+
+      '<span class="mini">'+(e.st?'📖 Problema con contexto':miniSys(e))+'</span></button>';
+  });
+  grid.innerHTML=html;
+  actualizarBarras();
+}
+function actualizarBarras(){
+  var p=prog();
+  ['f','m','d'].forEach(function(l){
+    var list=lvlList(l),done=0,seen=0;
+    list.forEach(function(e){if(p[e.id]===2)done++;else if(p[e.id]===1)seen++;});
+    var el=document.getElementById('cnt-'+l); if(el)el.textContent=done+' ✔ · '+seen+' 👀 · '+list.length;
+  });
+  var list=lvlList(curLvl),marked=list.filter(function(e){return p[e.id];}).length;
+  var fill=document.getElementById('pbarfill'); if(fill){fill.style.width=Math.round(marked/list.length*100)+'%';fill.style.background=LVL[curLvl].color;}
+}
+function resetProgreso(){if(confirm('¿Borrar todo tu progreso de ejercicios en este equipo?')){saveProg({});setLevel(curLvl);}}
+function exActual(){return lvlList(curLvl)[curIdx];}
+function openEx(i){
+  if(!_guard())return;
+  var list=lvlList(curLvl);
+  if(i<0)i=list.length-1; if(i>=list.length)i=0;
+  curIdx=i;
+  var e=list[i]; revelado[e.id]=revelado[e.id]||false;
+  document.getElementById('exTitle').textContent=LVL[curLvl].name+' — Ejercicio '+(i+1)+(e.t?': '+e.t:'');
+  var b='';
+  if(e.st){
+    b+='<div class="enun" style="--lvc:'+LVL[curLvl].color+'">'+e.st+'</div>';
+    b+='<div class="no-print" style="margin:10px 0"><button class="btn ghost sm" onclick="verPlant()">🧩 Ver planteamiento (ayuda)</button></div>';
+    b+='<div id="exPlant" style="display:none"></div>';
+  }else{
+    b+='<div class="enun" style="--lvc:'+LVL[curLvl].color+'">Resuelve el siguiente sistema de ecuaciones:</div>'+sysHTML(e);
+  }
+  b+='<div class="card" style="margin:12px 0 0"><h3><span class="k">✍️</span>Tu respuesta</h3>'+
+     '<div class="attempt"><span class="val">x =</span><input id="ansx" placeholder="ej: 3 o 7/2"><span class="val">y =</span><input id="ansy" placeholder="ej: 2 o -1,5">'+
+     '<button class="btn primary sm" onclick="verificarIntento()">Verificar</button></div>'+
+     '<div id="exFb" class="test-fb"></div>'+
+     '<p class="dim" style="margin:4px 0 0">Escribe fracciones (7/2) o decimales (3,5). Método sugerido: <b>'+METODOS[e.m]+'</b>.</p></div>';
+  b+='<div class="no-print" style="margin:12px 0 0"><button class="btn primary" onclick="verSolucion()">📖 Ver solución paso a paso</button></div>';
+  b+='<div id="exSol"></div>';
+  document.getElementById('exBody').innerHTML=b;
+  document.getElementById('exModal').classList.add('on');
+}
+function verPlant(){
+  var e=exActual(),d=document.getElementById('exPlant');
+  var h='<div class="card" style="margin:0 0 4px;border-left:3px solid '+LVL[curLvl].color+'"><h3><span class="k">🧩</span>Planteamiento</h3>';
+  h+='<p style="margin:2px 0"><b>Definimos las incógnitas:</b></p><ul class="clean" style="margin-top:0"><li><b>x</b> = '+e.px+'</li><li><b>y</b> = '+e.py+'</li></ul>';
+  h+='<p style="margin:2px 0"><b>Traducimos las condiciones:</b></p><ul class="clean" style="margin-top:0"><li><b class="e1c">Ecuación 1</b> — '+e.e1d+'</li><li><b class="e2c">Ecuación 2</b> — '+e.e2d+'</li></ul>';
+  if(e.note)h+='<div class="callout" style="margin:8px 0">📏 '+e.note+'</div>';
+  h+=sysHTML(e)+'</div>';
+  d.innerHTML=h; d.style.display='block';
+}
+function parseNum(s){
+  if(!s)return NaN;
+  s=(''+s).trim().replace(',','.').replace('−','-');
+  if(s.indexOf('/')>-1){var p=s.split('/'),n=parseFloat(p[0]),d=parseFloat(p[1]);return(!isNaN(n)&&!isNaN(d)&&d!==0)?n/d:NaN;}
+  return parseFloat(s);
+}
+function verificarIntento(){
+  var e=exActual(),fb=document.getElementById('exFb');
+  var vx=parseNum(document.getElementById('ansx').value),vy=parseNum(document.getElementById('ansy').value);
+  if(isNaN(vx)||isNaN(vy)){fb.className='test-fb show bad';fb.innerHTML='⚠️ Escribe los dos valores (x e y) como número, decimal o fracción.';return;}
+  var ok=Math.abs(vx-e.ax)<0.005&&Math.abs(vy-e.ay)<0.005,p=prog();
+  if(ok){
+    fb.className='test-fb show good';
+    if(!revelado[e.id]){p[e.id]=2;saveProg(p);fb.innerHTML='🎉 <b>¡Correcto!</b> Lo resolviste por tu cuenta. ¡Excelente!';}
+    else{if(!p[e.id])p[e.id]=1;saveProg(p);fb.innerHTML='✔ <b>Correcto</b> (ya habías visto la solución). ¡Sigue practicando!';}
+    actualizarBarras(); refreshGrid();
+  }else{
+    fb.className='test-fb show bad';
+    fb.innerHTML='❌ Aún no es la respuesta. Revisa tus operaciones (¡cuidado con los signos!) o mira la solución paso a paso.';
+  }
+}
+function refreshGrid(){var m=document.getElementById('exModal').classList.contains('on');setLevel(curLvl);if(m)document.getElementById('exModal').classList.add('on');}
+function verSolucion(met){
+  var e=exActual(); met=met||e.m; revelado[e.id]=true;
+  var p=prog(); if(p[e.id]!==2){p[e.id]=1;saveProg(p);actualizarBarras();refreshGrid();}
+  var s={a1:e.a1,b1:e.b1,c1:e.c1,a2:e.a2,b2:e.b2,c2:e.c2};
+  var chips='<div class="methods no-print" style="margin:0 0 12px"><span class="mlbl">Método:</span>';
+  Object.keys(METODOS).forEach(function(k){chips+='<button class="btn sm '+(k===met?'primary':'ghost')+'" onclick="verSolucion(\''+k+'\')">'+METODOS[k].replace(' (Cramer)','')+'</button>';});
+  chips+='</div>';
+  var plant='';
+  if(e.st){
+    plant='<div class="minibox" style="margin-bottom:10px"><h5>Planteamiento</h5><p style="margin:2px 0;font-size:.9rem"><b>x</b> = '+e.px+' · <b>y</b> = '+e.py+'</p>'+
+      '<p style="margin:2px 0;font-size:.9rem"><b class="e1c">Ec. 1:</b> '+e.e1d+' · <b class="e2c">Ec. 2:</b> '+e.e2d+'</p>'+(e.note?'<p style="margin:2px 0;font-size:.85rem">📏 '+e.note+'</p>':'')+'</div>';
+  }
+  var r=construirSolucion(s,met),ctxAns='';
+  if(e.st&&r.cl.tipo==='unica'){
+    ctxAns='<div class="step final"><div class="sn">🌾<br>Respuesta</div><div class="sb"><h4>Respuesta en el contexto del problema</h4><p style="margin:4px 0;line-height:1.6">• '+e.px.charAt(0).toUpperCase()+e.px.slice(1)+': <b>'+fPlain(r.cl.x)+'</b><br>• '+e.py.charAt(0).toUpperCase()+e.py.slice(1)+': <b>'+fPlain(r.cl.y)+'</b></p></div></div>';
+  }
+  document.getElementById('exSol').innerHTML='<div class="card" style="margin-top:12px"><h3><span class="k">📖</span>Solución paso a paso</h3>'+chips+plant+r.html+ctxAns+'<h3 style="margin-top:14px"><span class="k">📈</span>Gráfica</h3><canvas id="exGraph" class="graph" width="620" height="440"></canvas></div>';
+  drawSys(document.getElementById('exGraph'),s,r.cl);
+}
+function navEx(d){openEx(curIdx+d);}
+function closeEx(){document.getElementById('exModal').classList.remove('on');}
+function generarPDFEjercicio(){
+  var e=exActual();
+  if(!revelado[e.id])verSolucion();
+  document.body.classList.add('printing-exercise');
+  var cleanup=function(){document.body.classList.remove('printing-exercise');window.removeEventListener('afterprint',cleanup);};
+  window.addEventListener('afterprint',cleanup);
+  setTimeout(function(){window.print();},150);
+  setTimeout(cleanup,5000);
+}
+
+/* ================================================================
+   Compartir
+   ================================================================ */
+function openShare(){document.getElementById('shareModal').classList.add('on');shareMsg('',null);}
+function closeShare(){document.getElementById('shareModal').classList.remove('on');}
+function shareMsg(txt,ok){var m=document.getElementById('shareMsg');if(!txt){m.className='test-fb';return;}m.className='test-fb show '+(ok?'good':'bad');m.innerHTML=txt;}
+function appHTML(){return '<!DOCTYPE html>\n'+document.documentElement.outerHTML;}
+function appBlob(){return new Blob([appHTML()],{type:'text/html;charset=utf-8'});}
+function shareDownload(){
+  var a=document.createElement('a');a.href=URL.createObjectURL(appBlob());a.download='Ecuaciones2x2_App.html';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(a.href);},10000);
+  shareMsg('📥 <b>Archivo descargado.</b> Ábrelo con doble clic en cualquier navegador: funciona sin internet.',true);
+}
+function shareSystem(){
+  try{
+    var file=new File([appBlob()],'Ecuaciones2x2_App.html',{type:'text/html'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:'Ecuaciones 2×2',text:'App para aprender sistemas de ecuaciones 2×2 (funciona sin internet).'})
+        .then(function(){shareMsg('📲 <b>Compartido.</b> El archivo llegará listo para abrir en el otro dispositivo.',true);})
+        .catch(function(){shareMsg('Se canceló el envío. También puedes usar «Descargar archivo HTML».',false);});
+      return;
+    }
+  }catch(err){}
+  shareMsg('Este navegador no permite compartir archivos directamente. Usa <b>«Descargar archivo HTML»</b> y envíalo por WhatsApp, correo o USB.',false);
+}
+function shareCopyLink(){
+  var url=location.href;
+  function done(){shareMsg('🔗 <b>Enlace copiado:</b> '+url,true);}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(done,function(){shareMsg('El enlace es: '+url,false);});
+  else shareMsg('El enlace es: '+url,false);
+}
+function shareWhatsApp(){
+  var txt='📐 *Ecuaciones 2×2* — app para aprender sistemas de ecuaciones con teoría, resolutor paso a paso, 60 ejercicios y test. '+(location.protocol.indexOf('http')===0?('Ábrela aquí: '+location.href):'Te la comparto como archivo HTML.');
+  window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+}
+
+/* ================================================================
+   TEST — 30 preguntas (mayoría interpretativas)
+   ================================================================ */
+var TESTQ=[
+{tag:'Interpretación gráfica',q:'Al graficar un sistema 2×2, las dos rectas se cortan en un solo punto. ¿Qué se puede afirmar del sistema?',opts:['Tiene exactamente una solución (sistema consistente)','No tiene solución (sistema inconsistente)','Tiene infinitas soluciones (sistema dependiente)','No se puede saber sin resolverlo'],a:0,ex:'Si las rectas se intersecan en un punto, ese punto es la única solución común: sistema consistente.'},
+{tag:'Interpretación gráfica',q:'Dos rectas de un sistema son paralelas y distintas. ¿Cómo se clasifica el sistema?',opts:['Inconsistente: no tiene solución','Consistente: una solución','Dependiente: infinitas soluciones','Consistente: dos soluciones'],a:0,ex:'Rectas paralelas no se cortan; no hay par (x, y) común, así que el sistema es inconsistente (sin solución).'},
+{tag:'Interpretación gráfica',q:'Las dos ecuaciones de un sistema corresponden exactamente a la misma recta. Entonces el sistema es:',opts:['Dependiente: infinitas soluciones','Inconsistente: sin solución','Consistente: solución única','Imposible de clasificar'],a:0,ex:'Si son la misma recta, todo punto de ella satisface ambas ecuaciones: infinitas soluciones (sistema dependiente).'},
+{tag:'Interpretación',q:'La gráfica de un sistema muestra que las rectas se cruzan en el punto (3, 2). ¿Qué significa ese punto?',opts:['Que x = 3 y y = 2 es la solución del sistema','Que hay tres soluciones para x y dos para y','Que el sistema no tiene solución','Que las rectas son paralelas'],a:0,ex:'El punto de intersección es el par ordenado que cumple ambas ecuaciones: x = 3, y = 2.'},
+{tag:'Determinante',q:'Para un sistema 2×2, el determinante <span class="eqf">a₁·b₂ − a₂·b₁</span> vale 0 y las rectas son distintas. El sistema:',opts:['No tiene solución (rectas paralelas)','Tiene solución única','Tiene infinitas soluciones','Tiene exactamente dos soluciones'],a:0,ex:'Determinante 0 indica que no hay solución única; si las rectas son distintas, son paralelas y no hay solución.'},
+{tag:'Determinante',q:'Si el determinante del sistema es distinto de cero, se garantiza que el sistema:',opts:['Tiene una única solución','No tiene solución','Tiene infinitas soluciones','Es siempre dependiente'],a:0,ex:'Determinante ≠ 0 ⇒ las rectas no son paralelas ni idénticas ⇒ solución única.'},
+{tag:'Planteamiento',q:'En un corral hay gallinas y cerdos: 25 cabezas y 64 patas (gallina 2 patas, cerdo 4). Si x = gallinas y y = cerdos, ¿qué sistema modela la situación?',opts:['x + y = 25 ; 2x + 4y = 64','x + y = 64 ; 2x + 4y = 25','2x + 4y = 25 ; x + y = 64','x − y = 25 ; 2x + 4y = 64'],a:0,ex:'Cada animal aporta una cabeza (x + y = 25) y las patas suman 2x + 4y = 64.'},
+{tag:'Elección de método',q:'En el sistema y = 2x − 3 ; 3x + y = 12, ¿qué método resulta más directo?',opts:['Sustitución, porque y ya está despejada','Determinantes, siempre es el único válido','Igualación, despejando y en ambas','Ninguno funciona con y despejada'],a:0,ex:'Como y ya está despejada, conviene sustituir esa expresión en la otra ecuación.'},
+{tag:'Interpretación',q:'Al resolver un sistema por reducción llegas a la igualdad 0 = 7. ¿Qué concluyes?',opts:['El sistema no tiene solución (inconsistente)','x = 0 y y = 7','El sistema tiene infinitas soluciones','Cometiste un error, siempre hay solución'],a:0,ex:'Una igualdad falsa (0 = 7) indica que las ecuaciones se contradicen: sistema inconsistente.'},
+{tag:'Interpretación',q:'Al resolver un sistema obtienes la identidad 0 = 0. Esto significa que el sistema:',opts:['Tiene infinitas soluciones (dependiente)','No tiene solución','Tiene una única solución','Tiene solución solo si x = 0'],a:0,ex:'0 = 0 es siempre verdadero: las ecuaciones son equivalentes y hay infinitas soluciones.'},
+{tag:'Concepto',q:'¿Qué debe cumplir un par (x, y) para ser solución de un sistema 2×2?',opts:['Satisfacer las dos ecuaciones a la vez','Satisfacer al menos una de las ecuaciones','Hacer cero el determinante','Estar sobre el eje x'],a:0,ex:'La solución del sistema debe verificar simultáneamente ambas ecuaciones.'},
+{tag:'Reducción',q:'En el sistema 2x + 3y = 8 ; 3x − y = 1, para eliminar la x por reducción una opción es multiplicar:',opts:['La 1.ª por 3 y la 2.ª por −2','Ambas por 2','La 1.ª por −1 y la 2.ª por 1','La 2.ª por 3 solamente'],a:0,ex:'Así los coeficientes de x quedan 6 y −6 (opuestos) y al sumar se elimina la x.'},
+{tag:'Comprobación',q:'¿Es (2, 3) solución de 3x − 4y = −6  ; 2x + 4y = 16?',opts:['Sí, cumple ambas ecuaciones','No, solo cumple la primera','No, no cumple ninguna','Solo cumple la segunda'],a:0,ex:'3(2)−4(3)=6−12=−6 ✓ y 2(2)+4(3)=4+12=16 ✓: cumple las dos, es solución.'},
+{tag:'Interpretación gráfica',q:'De una gráfica se lee que las rectas se cortan en (−1, 2). La solución del sistema es:',opts:['x = −1, y = 2','x = 2, y = −1','x = −1, y = −2','No hay solución'],a:0,ex:'El punto de corte da directamente la solución: x = −1, y = 2.'},
+{tag:'Planteamiento',q:'«El doble de un número x más otro número y es 10». ¿Qué ecuación lo representa?',opts:['2x + y = 10','x + 2y = 10','2x − y = 10','2(x + y) = 10'],a:0,ex:'«El doble de x» es 2x; «más y» da 2x + y = 10.'},
+{tag:'Planteamiento',q:'«x supera a y en 3 unidades». ¿Qué ecuación lo expresa?',opts:['x − y = 3','x + y = 3','y − x = 3','x = 3y'],a:0,ex:'Que x supere a y en 3 significa x − y = 3.'},
+{tag:'Fases de solución',q:'Según las cuatro fases para resolver un problema, la primera consiste en:',opts:['Comprensión: identificar datos e incógnitas','Resolución: hallar los valores','Comprobación: verificar el resultado','Graficar las rectas'],a:0,ex:'El orden es Comprensión, Planteamiento, Resolución y Comprobación.'},
+{tag:'Determinante',q:'El determinante de la matriz de coeficientes de 3x + 2y = 7 ; 4x − 3y = −2 es:',opts:['−17','17','1','−1'],a:0,ex:'|A| = (3)(−3) − (4)(2) = −9 − 8 = −17.'},
+{tag:'Regla de Cramer',q:'En la regla de Cramer, el valor de x se obtiene como:',opts:['x = |A|ₓ / |A|','x = |A| / |A|ₓ','x = |A|ₓ · |A|','x = |A|ₓ − |A|'],a:0,ex:'Cramer: x = |A|ₓ / |A| y y = |A|ᵧ / |A|, con |A| ≠ 0.'},
+{tag:'Regla de Cramer',q:'¿Por qué la regla de Cramer exige que |A| ≠ 0?',opts:['Porque no se puede dividir entre cero; si |A| = 0 no hay solución única','Porque |A| debe ser positivo','Porque solo sirve para números enteros','Porque las rectas deben ser paralelas'],a:0,ex:'x e y se dividen entre |A|; si |A| = 0 la división no está definida y el sistema no tiene solución única.'},
+{tag:'Interpretación',q:'En un sistema, los coeficientes de la 2.ª ecuación son el doble de los de la 1.ª, pero los términos independientes NO guardan esa proporción. El sistema es:',opts:['Inconsistente (rectas paralelas)','Dependiente (infinitas soluciones)','Consistente (solución única)','No se puede clasificar'],a:0,ex:'Coeficientes proporcionales pero independientes no ⇒ rectas paralelas ⇒ sin solución.'},
+{tag:'Concepto',q:'Un sistema consistente (rectas no paralelas) tiene:',opts:['Exactamente una solución','Ninguna solución','Infinitas soluciones','Dos soluciones'],a:0,ex:'Rectas que se cortan en un punto ⇒ una única solución: sistema consistente.'},
+{tag:'Comprobación',q:'Para comprobar que una solución es correcta se debe:',opts:['Reemplazarla en las dos ecuaciones originales','Reemplazarla solo en la más sencilla','Volver a graficar únicamente','Cambiar el método de solución'],a:0,ex:'La comprobación consiste en verificar que el par cumpla ambas ecuaciones originales.'},
+{tag:'Planteamiento',q:'«3 entradas de adulto (x) y 2 de niño (y) cuestan 12,2». ¿Qué ecuación corresponde?',opts:['3x + 2y = 12,2','2x + 3y = 12,2','3x − 2y = 12,2','x + y = 12,2'],a:0,ex:'El costo total es 3x + 2y = 12,2 (adaptado del ejemplo del MEN).'},
+{tag:'Elección de método',q:'Para el sistema x + y = 100 ; 600x + 400y = 45000, ¿qué método simplifica el trabajo?',opts:['Sustitución (despejar y = 100 − x)','Cramer con fracciones','Igualación despejando en ambas por separado','Ninguno, se resuelve por tanteo'],a:0,ex:'De x + y = 100 se despeja y = 100 − x fácilmente y se sustituye; es lo más directo.'},
+{tag:'Interpretación',q:'Dos rectas tienen la misma pendiente pero distinto punto de corte con el eje y. Su sistema:',opts:['No tiene solución (paralelas)','Tiene solución única','Tiene infinitas soluciones','Se corta en el origen'],a:0,ex:'Igual pendiente y distinto intercepto ⇒ rectas paralelas ⇒ sistema inconsistente.'},
+{tag:'Concepto',q:'¿Cuál de estas NO es una ecuación lineal (de un sistema 2×2)?',opts:['x² + y = 5','2x + 3y = 6','x − y = 0','−x + 4y = 7'],a:0,ex:'x² + y = 5 tiene la incógnita elevada al cuadrado: no es lineal.'},
+{tag:'Interpretación',q:'Al resolver por igualación, tras despejar x en ambas ecuaciones obtienes dos expresiones. El siguiente paso es:',opts:['Igualar las dos expresiones de x','Sumarlas','Multiplicarlas entre sí','Graficarlas'],a:0,ex:'El método de igualación iguala las dos expresiones de la misma incógnita para obtener una ecuación con una sola variable.'},
+{tag:'Planteamiento',q:'En una finca de 100 acres se siembra yuca (x) y zanahoria (y) usando todo el terreno. ¿Qué ecuación expresa el uso total de la tierra?',opts:['x + y = 100','600x + 400y = 100','x − y = 100','x · y = 100'],a:0,ex:'La suma de acres de ambos cultivos usa todo el terreno: x + y = 100 (ejemplo del MEN).'},
+{tag:'Interpretación',q:'Un estudiante resuelve un sistema y afirma que su solución es x = 4, y = 1. ¿Cómo puede estar seguro de que es correcta?',opts:['Sustituyendo x = 4, y = 1 en ambas ecuaciones y viendo que se cumplen','Comparando con el resultado de un compañero','Verificando solo la primera ecuación','Revisando que ambos valores sean positivos'],a:0,ex:'La certeza viene de la comprobación: el par debe satisfacer las dos ecuaciones originales.'}
+];
+var testFilterTag='todas';
+function testTags(){
+  var out=[];
+  TESTQ.forEach(function(q){if(out.indexOf(q.tag)===-1)out.push(q.tag);});
+  return out;
+}
+function renderTestFilters(){
+  var el=document.getElementById('testFilters'); if(!el)return;
+  var html='<button class="tf-chip'+(testFilterTag==='todas'?' on':'')+'" onclick="setTestFilter(\'todas\')">Todas ('+TESTQ.length+')</button>';
+  testTags().forEach(function(t){
+    var n=TESTQ.filter(function(q){return q.tag===t;}).length;
+    html+='<button class="tf-chip'+(testFilterTag===t?' on':'')+'" onclick="setTestFilter(\''+t.replace(/'/g,"\\'")+'\')">'+t+' ('+n+')</button>';
+  });
+  el.innerHTML=html;
+}
+function setTestFilter(t){testFilterTag=t;renderTestFilters();renderTestBank();}
+function renderTestBank(){
+  if(!_guard())return;
+  var el=document.getElementById('testBank'); if(!el)return;
+  var L=['A','B','C','D'],html='';
+  TESTQ.forEach(function(Q,i){
+    if(testFilterTag!=='todas'&&Q.tag!==testFilterTag)return;
+    html+='<div class="qbank-item"><div class="qbank-head"><span class="test-tag">'+Q.tag+'</span><span class="qbank-num">Pregunta '+(i+1)+' de '+TESTQ.length+'</span></div>';
+    html+='<div class="qbank-q eqf-wrap">'+Q.q+'</div>';
+    html+='<div class="qbank-opts">';
+    Q.opts.forEach(function(o,k){
+      var isC=k===Q.a;
+      html+='<div class="qbank-opt'+(isC?' correct':'')+'"><span class="lt">'+L[k]+'</span><span>'+o+'</span>'+(isC?'<span class="ok-badge">✔ Respuesta correcta</span>':'')+'</div>';
+    });
+    html+='</div>';
+    html+='<div class="qbank-ex">💡 <b>Explicación:</b> '+Q.ex+'</div></div>';
+  });
+  el.innerHTML=html||'<div class="callout">No hay preguntas para este filtro.</div>';
+}
+function generarPDFTest(){window.print();}
+
+/* ================================================================
+   Inicio
+   ================================================================ */
+document.addEventListener('keydown',function(ev){if(ev.key==='Escape'){closeEx();closeShare();}});
+window.addEventListener('load',function(){
+  _renderCred();
+  if(!_intact()){_lock();return;}
+  var t='light'; try{t=localStorage.getItem('ec2x2-theme')||'light';}catch(e){}
+  applyTheme(t);
+  var tb=document.getElementById('themeBtn'); if(tb)tb.addEventListener('click',toggleTheme);
+  document.querySelectorAll('#nav button').forEach(function(b){b.addEventListener('click',function(){showSection(b.dataset.sec);});});
+  ['ia1','ib1','ic1','ia2','ib2','ic2'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('keydown',function(ev){if(ev.key==='Enter')resolver('reduccion');});});
+  showSection('inicio');
+  setLevel('f');
+  renderTestFilters();
+  renderTestBank();
+  setInterval(function(){if(!_intact())_lock();},1500);
+});
+</script></body></html>
